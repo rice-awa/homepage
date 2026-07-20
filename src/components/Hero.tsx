@@ -83,7 +83,7 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
       .to(foot, { opacity: 1, duration: 0.9 }, 1);
   }, [loaded, reduced]);
 
-  const drawRibbons = useCallback((t: number) => {
+  const drawRibbons = useCallback((t: number, dpr: number, ribbons: typeof RIBBONS) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const parent = canvas.parentElement;
@@ -91,16 +91,16 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
 
     const CW = parent.clientWidth;
     const CH = parent.clientHeight;
-    canvas.width = CW * DPR;
-    canvas.height = CH * DPR;
+    canvas.width = CW * dpr;
+    canvas.height = CH * dpr;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, CW, CH);
     ctx.globalCompositeOperation = 'lighter';
 
-    for (const r of RIBBONS) {
+    for (const r of ribbons) {
       const baseY = r.y * CH;
       ctx.beginPath();
       const STEPS = 48;
@@ -128,8 +128,12 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
   }, []);
 
   useEffect(() => {
+    // 移动端性能降级：DPR 降为 1、只画 2 条彩带、帧率限制 30fps
+    const dpr = isTouch ? 1 : DPR;
+    const ribbons = isTouch ? RIBBONS.slice(0, 2) : RIBBONS;
+
     if (reduced) {
-      drawRibbons(0);
+      drawRibbons(0, dpr, ribbons);
       return;
     }
 
@@ -143,9 +147,14 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
     );
     if (heroEl) observer.observe(heroEl);
 
+    const FRAME = 1000 / 30;
+    let last = -FRAME;
     let rafId: number;
     const loop = (t: number) => {
-      if (heroVisible) drawRibbons(t);
+      if (heroVisible && (!isTouch || t - last >= FRAME)) {
+        last = t;
+        drawRibbons(t, dpr, ribbons);
+      }
       rafId = requestAnimationFrame(loop);
     };
     rafId = requestAnimationFrame(loop);
@@ -154,7 +163,7 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
       cancelAnimationFrame(rafId);
       observer.disconnect();
     };
-  }, [reduced, drawRibbons]);
+  }, [reduced, isTouch, drawRibbons]);
 
   useEffect(() => {
     if (isTouch || reduced) return;
