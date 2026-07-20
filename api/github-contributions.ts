@@ -43,6 +43,20 @@ function error(code: string, message: string, status: number, headers: HeadersIn
   return json({ error: { code, message } }, status, headers);
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isContributionCalendar(value: unknown): value is Record<string, unknown> {
+  return isRecord(value)
+    && Array.isArray(value.weeks)
+    && value.weeks.every((week) => (
+      isRecord(week)
+      && Array.isArray(week.contributionDays)
+      && week.contributionDays.every(isRecord)
+    ));
+}
+
 export default async function handler(request: Request) {
   if (request.method !== 'GET') {
     return error('METHOD_NOT_ALLOWED', 'Only GET requests are supported.', 405, { Allow: 'GET' });
@@ -86,18 +100,20 @@ export default async function handler(request: Request) {
     return error('UPSTREAM_UNAVAILABLE', 'Contribution data is temporarily unavailable.', 502);
   }
 
-  let result: {
-    data?: { user?: { contributionsCollection?: { contributionCalendar?: unknown } } };
-    errors?: unknown[];
-  };
+  let result: unknown;
   try {
     result = await upstream.json();
   } catch {
     return error('UPSTREAM_INVALID', 'Contribution data is temporarily unavailable.', 502);
   }
 
-  const calendar = result.data?.user?.contributionsCollection?.contributionCalendar;
-  if (result.errors || !calendar || typeof calendar !== 'object') {
+  if (!isRecord(result) || result.errors || !isRecord(result.data) || !isRecord(result.data.user)
+    || !isRecord(result.data.user.contributionsCollection)) {
+    return error('UPSTREAM_INVALID', 'Contribution data is temporarily unavailable.', 502);
+  }
+
+  const calendar = result.data.user.contributionsCollection.contributionCalendar;
+  if (!isContributionCalendar(calendar)) {
     return error('UPSTREAM_INVALID', 'Contribution data is temporarily unavailable.', 502);
   }
 
