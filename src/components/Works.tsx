@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { WORKS } from '../constants/content';
@@ -76,15 +76,8 @@ function WorkCard({ item }: WorkItemProps) {
 
 export default function Works() {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-
     const track = trackRef.current;
     if (!track) return;
 
@@ -158,7 +151,7 @@ export default function Works() {
     });
 
     return () => ctx.revert();
-  }, [ready]);
+  }, []);
 
   return (
     <section className="works section" id="works">

@@ -9,6 +9,9 @@ export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
     const ctx = gsap.context(() => {
       gsap.from('.avatar-frame', {
         clipPath: 'inset(100% 0 0 0)',
@@ -28,7 +31,7 @@ export default function About() {
           scale: 1.12,
           ease: 'none',
           scrollTrigger: {
-            trigger: '.about',
+            trigger: section,
             start: 'top bottom',
             end: 'bottom top',
             scrub: true,
@@ -78,7 +81,7 @@ export default function About() {
           },
         });
       });
-    }, sectionRef);
+    }, section);
 
     return () => ctx.revert();
   }, []);
