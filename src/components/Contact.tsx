@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CONTACT } from '../constants/content';
@@ -13,8 +13,6 @@ const ArrowIcon = () => (
 );
 
 export default function Contact() {
-  const tagRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const ctx = gsap.context(() => {
       (gsap.utils.toArray('[data-ct]') as HTMLElement[]).forEach((el, i) => {
@@ -53,18 +51,6 @@ export default function Contact() {
           toggleActions: 'play none none reverse',
         },
       });
-
-      gsap.from(tagRef.current, {
-        opacity: 0,
-        x: -30,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: tagRef.current,
-          start: 'top 90%',
-          toggleActions: 'play none none reverse',
-        },
-      });
     });
 
     return () => ctx.revert();
@@ -85,7 +71,7 @@ export default function Contact() {
   return (
     <section className="contact section" id="contact">
       <div className="contact-glow" />
-      <div ref={tagRef} className="sec-tag">
+      <div className="sec-tag">
         ( {tag.num} ) — <em>{tag.en}</em> {tag.cn}
       </div>
 

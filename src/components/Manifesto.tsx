@@ -7,8 +7,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Manifesto() {
   const linesRef = useRef<(HTMLDivElement | null)[]>([]);
-  const footRef = useRef<HTMLParagraphElement>(null);
-  const tagRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -42,18 +40,6 @@ export default function Manifesto() {
           toggleActions: 'play none none reverse',
         },
       });
-
-      gsap.from('.sec-tag', {
-        opacity: 0,
-        x: -30,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: tagRef.current,
-          start: 'top 90%',
-          toggleActions: 'play none none reverse',
-        },
-      });
     });
 
     return () => ctx.revert();
@@ -63,7 +49,7 @@ export default function Manifesto() {
 
   return (
     <section className="manifesto section">
-      <div ref={tagRef} className="sec-tag">
+      <div className="sec-tag">
         ( {tag.num} ) — <em>{tag.en}</em> {tag.cn}
       </div>
 
@@ -88,7 +74,7 @@ export default function Manifesto() {
         </div>
       ))}
 
-      <p ref={footRef} className="m-foot">
+      <p className="m-foot">
         {foot.prefix}
         <strong>{foot.highlights[0]}</strong>
         {' '}到{' '}

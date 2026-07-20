@@ -44,6 +44,24 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
   }, []);
 
   useEffect(() => {
+    const title = titleRef.current;
+    const stroke = strokeRef.current;
+    if (!title || !stroke) return;
+
+    splitCharsHero(title);
+
+    if (reduced) {
+      const chars = title.querySelectorAll('.char');
+      gsap.set([chars, stroke], { yPercent: 0 });
+      return;
+    }
+
+    const chars = title.querySelectorAll('.char');
+    gsap.set(chars, { yPercent: 115 });
+    gsap.set(stroke, { yPercent: 115 });
+  }, [reduced]);
+
+  useEffect(() => {
     if (!loaded) return;
 
     const title = titleRef.current;
@@ -53,18 +71,9 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
     const nav = navRef.current;
 
     if (!title || !stroke) return;
+    if (reduced) return;
 
-    splitCharsHero(title);
     const chars = title.querySelectorAll('.char');
-
-    if (reduced) {
-      gsap.set([chars, stroke], { yPercent: 0 });
-      gsap.set([cn, foot, nav], { opacity: 1, y: 0 });
-      return;
-    }
-
-    gsap.set(chars, { yPercent: 115 });
-    gsap.set(stroke, { yPercent: 115 });
 
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
     tl.to(chars, { yPercent: 0, duration: 1.3, stagger: 0.05 }, 0)

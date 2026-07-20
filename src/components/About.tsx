@@ -8,7 +8,6 @@ gsap.registerPlugin(ScrollTrigger);
 export default function About() {
   const avatarFrameRef = useRef<HTMLDivElement>(null);
   const avatarImgRef = useRef<HTMLImageElement>(null);
-  const tagRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -81,18 +80,6 @@ export default function About() {
           },
         });
       });
-
-      gsap.from(tagRef.current, {
-        opacity: 0,
-        x: -30,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: tagRef.current,
-          start: 'top 90%',
-          toggleActions: 'play none none reverse',
-        },
-      });
     });
 
     return () => ctx.revert();
@@ -102,7 +89,7 @@ export default function About() {
 
   return (
     <section className="about section" id="about">
-      <div ref={tagRef} className="sec-tag">
+      <div className="sec-tag">
         ( {tag.num} ) — <em>{tag.en}</em> {tag.cn}
       </div>
 

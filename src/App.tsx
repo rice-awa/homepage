@@ -78,14 +78,24 @@ export default function App() {
         scrub: true,
       },
     });
-  }, [loaded]);
 
-  useEffect(() => {
-    const cleanup = () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
-    };
-    return cleanup;
-  }, []);
+    gsap.utils.toArray('.sec-tag').forEach((tag) => {
+      gsap.from(tag as HTMLElement, {
+        opacity: 0,
+        x: -30,
+        duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: tag as HTMLElement,
+          start: 'top 90%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+    });
+
+    window.addEventListener('load', () => ScrollTrigger.refresh());
+    ScrollTrigger.refresh();
+  }, [loaded]);
 
   return (
     <HelmetProvider>
