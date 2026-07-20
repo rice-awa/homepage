@@ -145,8 +145,8 @@ export default function App() {
         <Manifesto />
         <Works />
         <Stack reduced={reduced} />
-        <Contributions />
         <About />
+        <Contributions />
         <Contact />
       </main>
     </HelmetProvider>
