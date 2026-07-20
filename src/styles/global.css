@@ -22,8 +22,11 @@
 html {
   scrollbar-width: thin;
   scrollbar-color: rgba(34, 211, 238, .35) var(--bg);
-  /* 约束布局视口：移动端内容溢出时不再撑宽视口，避免 fixed 导航右侧被挤出/左右平移 */
+  width: 100%;
   overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  touch-action: pan-y pinch-zoom;
 }
 
 html.lenis,
@@ -39,7 +42,9 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-d);
+  width: 100%;
   overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   cursor: none;
@@ -1016,6 +1021,7 @@ body::after {
 .about {
   padding: clamp(7rem, 16vh, 12rem) clamp(1.2rem, 5vw, 4.5rem);
   background: linear-gradient(180deg, var(--bg), var(--bg2));
+  overflow-x: clip;
 }
 
 .about .sec-tag {
@@ -1454,6 +1460,13 @@ body::after {
 @media (max-width: 768px) {
   .nav-burger {
     display: block;
+  }
+
+  .avatar-ring {
+    width: 124px;
+    height: 124px;
+    top: -32px;
+    right: 26px;
   }
 
   /* 章节标签内的中文整体换行，避免逐字折断 */

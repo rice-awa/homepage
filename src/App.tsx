@@ -47,7 +47,7 @@ export default function App() {
   const { isTouch, reduced } = useMedia();
   const [loaded, setLoaded] = useState(reduced);
 
-  useLenis(reduced);
+  useLenis(reduced, isTouch);
 
   const handleLoaded = useCallback(() => {
     setLoaded(true);

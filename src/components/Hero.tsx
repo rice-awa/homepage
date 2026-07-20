@@ -91,8 +91,10 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
 
     const CW = parent.clientWidth;
     const CH = parent.clientHeight;
-    canvas.width = CW * dpr;
-    canvas.height = CH * dpr;
+    const width = Math.round(CW * dpr);
+    const height = Math.round(CH * dpr);
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;

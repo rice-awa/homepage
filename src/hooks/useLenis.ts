@@ -2,16 +2,20 @@ import { useLayoutEffect, useRef } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import {
+  connectLenisTicker,
+  shouldEnableSmoothScroll,
+} from './lenisLifecycle.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
 let lenisInstance: Lenis | null = null;
 
-export function useLenis(reduced: boolean) {
+export function useLenis(reduced: boolean, isTouch: boolean) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useLayoutEffect(() => {
-    if (reduced) return;
+    if (!shouldEnableSmoothScroll(reduced, isTouch)) return;
 
     const lenis = new Lenis({
       duration: 1.15,
@@ -19,19 +23,19 @@ export function useLenis(reduced: boolean) {
     });
 
     lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time: number) => lenis.raf(time * 1000));
+    const disconnectTicker = connectLenisTicker(lenis, gsap.ticker);
     gsap.ticker.lagSmoothing(0);
 
     lenisInstance = lenis;
     lenisRef.current = lenis;
 
     return () => {
-      gsap.ticker.remove((time: number) => lenis.raf(time * 1000));
+      disconnectTicker();
       lenis.destroy();
       lenisInstance = null;
       lenisRef.current = null;
     };
-  }, [reduced]);
+  }, [reduced, isTouch]);
 
   return lenisRef;
 }
