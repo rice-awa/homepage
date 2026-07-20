@@ -1,4 +1,12 @@
-import { useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from 'react';
 import { ACTIVITY } from '../constants/content';
 import { type ContributionDay, useContributions } from '../hooks/useContributions';
 
@@ -46,10 +54,30 @@ export default function Contributions() {
   const years = useMemo(() => yearsFor(), []);
   const [selectedYear, setSelectedYear] = useState(years[0]);
   const [activeDay, setActiveDay] = useState<ContributionDay | null>(null);
-  const { data, error, loading, retry } = useContributions(selectedYear);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const { data, error, loading, retry } = useContributions(years, selectedYear);
   const calendar = data?.year === selectedYear ? data : null;
   const weeks = calendar?.weeks || [];
   const isCurrentYear = selectedYear === years[0];
+  const daysByDate = useMemo(
+    () => new Map(weeks.flatMap((week) => week.days).map((day) => [day.date, day])),
+    [weeks],
+  );
+
+  const updateActiveDay = useCallback((event: PointerEvent) => {
+    const grid = gridRef.current;
+    const target = event.target instanceof Element
+      ? event.target.closest<HTMLButtonElement>('.activity-day')
+      : null;
+    const day = target && grid?.contains(target) ? daysByDate.get(target.dataset.date || '') ?? null : null;
+
+    setActiveDay((current) => current?.date === day?.date ? current : day);
+  }, [daysByDate]);
+
+  useEffect(() => {
+    window.addEventListener('pointermove', updateActiveDay, { passive: true });
+    return () => window.removeEventListener('pointermove', updateActiveDay);
+  }, [updateActiveDay]);
 
   const selectYear = (year: number) => {
     setActiveDay(null);
@@ -118,16 +146,15 @@ export default function Contributions() {
                 </div>
                 <div>
                   <MonthLabels weeks={weeks} />
-                  <div className="activity-grid">
+                  <div className="activity-grid" ref={gridRef}>
                     {weeks.flatMap((week) => week.days).map((day) => (
                       <button
                         aria-label={dayLabel(day)}
                         className={`activity-day level-${day.level}`}
+                        data-date={day.date}
                         key={day.date}
                         onBlur={() => setActiveDay(null)}
                         onFocus={() => setActiveDay(day)}
-                        onMouseEnter={() => setActiveDay(day)}
-                        onMouseLeave={() => setActiveDay(null)}
                         style={{ '--activity-row': day.weekday + 1 } as CSSProperties}
                         type="button"
                       />
@@ -135,7 +162,9 @@ export default function Contributions() {
                   </div>
                 </div>
               </div>
-              {activeDay && <p className="activity-tooltip" role="status">{dayLabel(activeDay)}</p>}
+              <div className="activity-tooltip-slot">
+                {activeDay && <p className="activity-tooltip" role="status">{dayLabel(activeDay)}</p>}
+              </div>
             </div>
           )}
           <div className="activity-legend" aria-label="Contribution intensity legend">

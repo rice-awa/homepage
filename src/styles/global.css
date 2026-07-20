@@ -1182,13 +1182,18 @@ body::after {
   left: 0;
   width: max-content;
   max-width: 100%;
-  margin-top: 1rem;
+  margin: 0;
   font: 10px/1.5 var(--font-m);
   letter-spacing: .08em;
   color: var(--ink);
   background: var(--panel);
   border: 1px solid var(--line);
   padding: .55rem .7rem;
+}
+
+.activity-tooltip-slot {
+  min-height: 2.9rem;
+  padding-top: 1rem;
 }
 
 .activity-skeleton {

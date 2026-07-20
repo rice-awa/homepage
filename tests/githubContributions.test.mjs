@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { createYearRequestCache } from '../src/hooks/contributionRequestCache.js';
 import {
   createContributionPayload,
   getContributionRange,
@@ -71,4 +72,18 @@ test('normalizes the GitHub calendar into the public response contract', () => {
     }],
     generatedAt: '2026-07-20T12:00:00.000Z',
   });
+});
+
+test('shares one in-flight request for repeated contribution years', async () => {
+  let requests = 0;
+  const cache = createYearRequestCache(async (year) => {
+    requests += 1;
+    return { year };
+  });
+
+  const [first, second] = await Promise.all([cache.get(2026), cache.get(2026)]);
+
+  assert.deepEqual(first, { year: 2026 });
+  assert.deepEqual(second, { year: 2026 });
+  assert.equal(requests, 1);
 });

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { createYearRequestCache } from './contributionRequestCache.js';
 
 export interface ContributionDay {
   date: string;
@@ -69,62 +70,99 @@ function apiErrorMessage(value: unknown) {
   return value.error.message;
 }
 
-export function useContributions(year: number) {
-  const [retryKey, setRetryKey] = useState(0);
-  const [data, setData] = useState<ContributionCalendar | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+async function fetchContributionCalendar(year: number): Promise<ContributionCalendar> {
+  const response = await fetch(`/api/github-contributions?year=${year}`);
+  const body: unknown = await response.json();
+
+  if (!response.ok) {
+    throw new Error(apiErrorMessage(body));
+  }
+
+  if (!isContributionCalendar(body) || body.year !== year) {
+    throw new Error(UNAVAILABLE_MESSAGE);
+  }
+
+  return body;
+}
+
+const contributionRequests = createYearRequestCache(fetchContributionCalendar);
+
+type CalendarByYear = Partial<Record<number, ContributionCalendar>>;
+type ErrorByYear = Partial<Record<number, string>>;
+
+export function useContributions(years: number[], selectedYear: number) {
+  const [retryRequest, setRetryRequest] = useState<{ year: number; key: number } | null>(null);
+  const [calendars, setCalendars] = useState<CalendarByYear>({});
+  const [errors, setErrors] = useState<ErrorByYear>({});
+  const [pendingYears, setPendingYears] = useState<Set<number>>(() => new Set(years));
+  const yearsKey = years.join(',');
 
   useEffect(() => {
-    const controller = new AbortController();
     let cancelled = false;
+    const yearsToLoad = retryRequest ? [retryRequest.year] : years;
 
-    setData(null);
-    setLoading(true);
-    setError(null);
+    setPendingYears((current) => {
+      const next = new Set(current);
+      yearsToLoad.forEach((year) => next.add(year));
+      return next;
+    });
 
-    async function load() {
-      try {
-        const response = await fetch(`/api/github-contributions?year=${year}`, {
-          signal: controller.signal,
+    yearsToLoad.forEach((year) => {
+      const request = retryRequest ? contributionRequests.refresh(year) : contributionRequests.get(year);
+
+      void request
+        .then((calendar) => {
+          if (cancelled) return;
+
+          setCalendars((current) => ({ ...current, [year]: calendar }));
+          setErrors((current) => {
+            if (!current[year]) return current;
+            const next = { ...current };
+            delete next[year];
+            return next;
+          });
+        })
+        .catch((reason) => {
+          if (cancelled) return;
+
+          setErrors((current) => ({
+            ...current,
+            [year]: reason instanceof Error ? reason.message : UNAVAILABLE_MESSAGE,
+          }));
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setPendingYears((current) => {
+              if (!current.has(year)) return current;
+              const next = new Set(current);
+              next.delete(year);
+              return next;
+            });
+          }
         });
-        const body: unknown = await response.json();
+    });
 
-        if (!response.ok) {
-          throw new Error(apiErrorMessage(body));
-        }
-
-        if (!isContributionCalendar(body)) {
-          throw new Error(UNAVAILABLE_MESSAGE);
-        }
-
-        if (body.year !== year) {
-          throw new Error(UNAVAILABLE_MESSAGE);
-        }
-
-        if (!cancelled) {
-          setData(body);
-        }
-      } catch (reason) {
-        if (cancelled || controller.signal.aborted) return;
-
-        setData(null);
-        setError(reason instanceof Error ? reason.message : UNAVAILABLE_MESSAGE);
-      } finally {
-        if (!cancelled && !controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void load();
     return () => {
       cancelled = true;
-      controller.abort();
     };
-  }, [year, retryKey]);
+  }, [retryRequest, yearsKey]);
 
-  const retry = useCallback(() => setRetryKey((value) => value + 1), []);
+  const retry = useCallback(() => {
+    setErrors((current) => {
+      if (!current[selectedYear]) return current;
+      const next = { ...current };
+      delete next[selectedYear];
+      return next;
+    });
+    setRetryRequest((current) => ({
+      year: selectedYear,
+      key: (current?.key ?? 0) + 1,
+    }));
+  }, [selectedYear]);
+
+  const data = calendars[selectedYear] ?? null;
+  const error = errors[selectedYear] ?? null;
+  const loading = pendingYears.has(selectedYear);
 
   return { data, error, loading, retry };
 }
