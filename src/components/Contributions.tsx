@@ -139,7 +139,7 @@ export default function Contributions() {
             </div>
           )}
           {calendar && (
-            <div className="activity-scroll">
+            <div className="activity-scroll activity-calendar-enter" key={selectedYear}>
               <div className="activity-calendar" role="grid" aria-label={`${selectedYear} contribution calendar`}>
                 <div className="activity-weekdays" aria-hidden="true">
                   {WEEKDAYS.map((label, index) => <span key={index}>{label}</span>)}

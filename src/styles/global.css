@@ -1087,6 +1087,22 @@ body::after {
   scrollbar-color: rgba(34, 211, 238, .35) transparent;
 }
 
+.activity-calendar-enter {
+  animation: activity-calendar-enter .28s var(--ease) both;
+}
+
+@keyframes activity-calendar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .activity-calendar {
   --activity-cell: 12px;
   --activity-gap: 4px;
@@ -1344,6 +1360,10 @@ body::after {
   .activity-day,
   .activity-years button {
     transition: none;
+  }
+
+  .activity-calendar-enter {
+    animation: none;
   }
 
   .activity-day:hover,
