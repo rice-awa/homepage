@@ -1336,7 +1336,8 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .activity-day {
+  .activity-day,
+  .activity-years button {
     transition: none;
   }
 

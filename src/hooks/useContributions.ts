@@ -98,6 +98,10 @@ export function useContributions(year: number) {
           throw new Error(UNAVAILABLE_MESSAGE);
         }
 
+        if (body.year !== year) {
+          throw new Error(UNAVAILABLE_MESSAGE);
+        }
+
         if (!cancelled) {
           setData(body);
         }

@@ -93,7 +93,12 @@ export default function Contributions() {
       </div>
 
       <div className="activity-layout">
-        <div className="activity-surface">
+        <div
+          aria-labelledby={`activity-year-${selectedYear}`}
+          className="activity-surface"
+          id="activity-calendar"
+          role="tabpanel"
+        >
           {loading && (
             <div className="activity-scroll">
               <Skeleton />
@@ -107,7 +112,7 @@ export default function Contributions() {
           )}
           {calendar && (
             <div className="activity-scroll">
-              <div className="activity-calendar" id="activity-calendar" role="group" aria-label={`${selectedYear} contribution calendar`}>
+              <div className="activity-calendar" role="grid" aria-label={`${selectedYear} contribution calendar`}>
                 <div className="activity-weekdays" aria-hidden="true">
                   {WEEKDAYS.map((label, index) => <span key={index}>{label}</span>)}
                 </div>
@@ -145,6 +150,7 @@ export default function Contributions() {
             <button
               aria-controls="activity-calendar"
               aria-selected={year === selectedYear}
+              id={`activity-year-${year}`}
               key={year}
               onClick={() => selectYear(year)}
               onKeyDown={(event) => handleYearKeyDown(event, index)}
