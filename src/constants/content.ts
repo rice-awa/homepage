@@ -69,7 +69,7 @@ export const WORKS = {
       year: '2026',
       tags: ['PYTHON', 'PYDANTICAI', 'WEBSOCKET', 'MCP'],
       desc: 'Minecraft 基岩版的 AI Agent：异步消息队列解耦、多 LLM 支持、流式输出与多人会话隔离，让 AI 真正「住进」服务器。',
-      link: 'https://github.com/rice-awa',
+      link: 'https://github.com/rice-awa/MCBE-AI-Agent',
       image: '/assets/mcbe-ai-agent-hero.webp',
     },
     {
@@ -79,7 +79,7 @@ export const WORKS = {
       year: '2026',
       tags: ['JAVA', 'FABRIC', 'LLM', 'TOOL-CALL'],
       desc: 'Minecraft Fabric 模组，把 LLM 聊天带入游戏：13 个游戏内工具调用、热编辑提示词模板、多 Provider 健康检查。',
-      link: 'https://github.com/riceawa/LumiChat',
+      link: 'https://github.com/rice-awa/LumiChat',
       image: '/assets/lumichat-hero.webp',
     },
     {
@@ -99,7 +99,7 @@ export const WORKS = {
       year: '2024',
       tags: ['PYTHON', 'FLASK', 'LANGCHAIN'],
       desc: 'AI 英语作文自动批改系统：多维度评分、逐句修改建议，把老师从重复劳动里解放出来。',
-      link: 'https://github.com/rice-awa',
+      link: 'https://github.com/rice-awa/AutoGradAI',
       coverGen: { line1: 'ESSAY', line2: 'GRADER', cg: 'rgba(96,165,250,.30)', cgStrong: '#60a5fa', meta: ['FLASK / LANGCHAIN', 'AI EDUCATION / 2024'] },
     },
     {
