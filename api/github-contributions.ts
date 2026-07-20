@@ -47,13 +47,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isContributionDay(value: unknown): value is Record<string, unknown> {
+  return isRecord(value)
+    && typeof value.date === 'string'
+    && typeof value.color === 'string'
+    && typeof value.contributionLevel === 'string'
+    && typeof value.contributionCount === 'number'
+    && typeof value.weekday === 'number';
+}
+
 function isContributionCalendar(value: unknown): value is Record<string, unknown> {
   return isRecord(value)
+    && typeof value.totalContributions === 'number'
     && Array.isArray(value.weeks)
     && value.weeks.every((week) => (
       isRecord(week)
       && Array.isArray(week.contributionDays)
-      && week.contributionDays.every(isRecord)
+      && week.contributionDays.every(isContributionDay)
     ));
 }
 
@@ -107,7 +117,8 @@ export default async function handler(request: Request) {
     return error('UPSTREAM_INVALID', 'Contribution data is temporarily unavailable.', 502);
   }
 
-  if (!isRecord(result) || result.errors || !isRecord(result.data) || !isRecord(result.data.user)
+  if (!isRecord(result) || Object.prototype.hasOwnProperty.call(result, 'errors')
+    || !isRecord(result.data) || !isRecord(result.data.user)
     || !isRecord(result.data.user.contributionsCollection)) {
     return error('UPSTREAM_INVALID', 'Contribution data is temporarily unavailable.', 502);
   }
