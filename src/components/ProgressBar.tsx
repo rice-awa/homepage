@@ -5,27 +5,25 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function ProgressBar() {
-  const barRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let st: ScrollTrigger | null = null;
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        start: 0,
+        end: 'max',
+        onUpdate(self) {
+          gsap.set('#progressBar', { scaleX: self.progress });
+        },
+      });
+    }, containerRef);
 
-    st = ScrollTrigger.create({
-      start: 0,
-      end: 'max',
-      onUpdate(self) {
-        gsap.set('#progressBar', { scaleX: self.progress });
-      },
-    });
-
-    return () => {
-      st?.kill();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <div className="progress">
-      <div ref={barRef} className="progress-bar" id="progressBar" />
+    <div ref={containerRef} className="progress">
+      <div className="progress-bar" id="progressBar" />
     </div>
   );
 }

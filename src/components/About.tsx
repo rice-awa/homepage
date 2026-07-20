@@ -6,95 +6,87 @@ import { ABOUT } from '../constants/content';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
-  const avatarFrameRef = useRef<HTMLDivElement>(null);
-  const avatarImgRef = useRef<HTMLImageElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const sts: ScrollTrigger[] = [];
-
-    const t1 = gsap.from('.avatar-frame', {
-      clipPath: 'inset(100% 0 0 0)',
-      duration: 1.2,
-      ease: 'expo.out',
-      scrollTrigger: {
-        trigger: '.avatar-wrap',
-        start: 'top 82%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-    if (t1.scrollTrigger) sts.push(t1.scrollTrigger);
-
-    const t2 = gsap.fromTo(
-      '#aboutImg',
-      { scale: 1.3 },
-      {
-        scale: 1.12,
-        ease: 'none',
+    const ctx = gsap.context(() => {
+      gsap.from('.avatar-frame', {
+        clipPath: 'inset(100% 0 0 0)',
+        duration: 1.2,
+        ease: 'expo.out',
         scrollTrigger: {
-          trigger: '.about',
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      },
-    );
-    if (t2.scrollTrigger) sts.push(t2.scrollTrigger);
-
-    const t3 = gsap.from(['.about-body h3', '.about-body p'], {
-      opacity: 0,
-      y: 40,
-      duration: 1,
-      stagger: 0.12,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.about-body',
-        start: 'top 82%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-    if (t3.scrollTrigger) sts.push(t3.scrollTrigger);
-
-    const t4 = gsap.from('.stat', {
-      opacity: 0,
-      y: 26,
-      duration: 0.8,
-      stagger: 0.08,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.stats',
-        start: 'top 88%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-    if (t4.scrollTrigger) sts.push(t4.scrollTrigger);
-
-    (gsap.utils.toArray('[data-count]') as HTMLElement[]).forEach((el) => {
-      const target = Number(el.dataset.count);
-      const st = ScrollTrigger.create({
-        trigger: el,
-        start: 'top 90%',
-        once: true,
-        onEnter: () => {
-          gsap.fromTo(el, { textContent: 0 }, {
-            textContent: target,
-            duration: 1.6,
-            ease: 'power2.out',
-            snap: { textContent: 1 },
-          });
+          trigger: '.avatar-wrap',
+          start: 'top 82%',
+          toggleActions: 'play none none reverse',
         },
       });
-      sts.push(st);
-    });
 
-    return () => {
-      sts.forEach((st) => st.kill());
-    };
+      gsap.fromTo(
+        '#aboutImg',
+        { scale: 1.3 },
+        {
+          scale: 1.12,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.about',
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        },
+      );
+
+      gsap.from(['.about-body h3', '.about-body p'], {
+        opacity: 0,
+        y: 40,
+        duration: 1,
+        stagger: 0.12,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.about-body',
+          start: 'top 82%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+
+      gsap.from('.stat', {
+        opacity: 0,
+        y: 26,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.stats',
+          start: 'top 88%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+
+      (gsap.utils.toArray('[data-count]') as HTMLElement[]).forEach((el) => {
+        const target = Number(el.dataset.count);
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 90%',
+          once: true,
+          onEnter: () => {
+            gsap.fromTo(el, { textContent: 0 }, {
+              textContent: target,
+              duration: 1.6,
+              ease: 'power2.out',
+              snap: { textContent: 1 },
+            });
+          },
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   const { tag, heading, paragraphs, avatar, stats } = ABOUT;
 
   return (
-    <section className="about section" id="about">
+    <section ref={sectionRef} className="about section" id="about">
       <div className="sec-tag">
         ( {tag.num} ) — <em>{tag.en}</em> {tag.cn}
       </div>
@@ -112,8 +104,8 @@ export default function About() {
               <textPath href="#ringPath">{avatar.ringText}</textPath>
             </text>
           </svg>
-          <div ref={avatarFrameRef} className="avatar-frame">
-            <img ref={avatarImgRef} src={avatar.src} alt={avatar.alt} id="aboutImg" />
+          <div className="avatar-frame">
+            <img src={avatar.src} alt={avatar.alt} id="aboutImg" />
           </div>
           <div className="avatar-caption">
             <span>{avatar.caption[0]}</span>

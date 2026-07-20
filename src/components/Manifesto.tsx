@@ -6,54 +6,51 @@ import { MANIFESTO } from '../constants/content';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Manifesto() {
+  const sectionRef = useRef<HTMLElement>(null);
   const linesRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const sts: ScrollTrigger[] = [];
-
-    linesRef.current.forEach((line) => {
-      if (!line) return;
-      const inner = line.querySelector('.m-line-inner');
-      if (!inner) return;
-      const t = gsap.fromTo(
-        inner,
-        { yPercent: 105 },
-        {
-          yPercent: 0,
-          ease: 'power3.out',
-          duration: 1,
-          scrollTrigger: {
-            trigger: line,
-            start: 'top 88%',
-            toggleActions: 'play none none reverse',
+    const ctx = gsap.context(() => {
+      linesRef.current.forEach((line) => {
+        if (!line) return;
+        const inner = line.querySelector('.m-line-inner');
+        if (!inner) return;
+        gsap.fromTo(
+          inner,
+          { yPercent: 105 },
+          {
+            yPercent: 0,
+            ease: 'power3.out',
+            duration: 1,
+            scrollTrigger: {
+              trigger: line,
+              start: 'top 88%',
+              toggleActions: 'play none none reverse',
+            },
           },
+        );
+      });
+
+      gsap.from('.m-foot', {
+        opacity: 0,
+        y: 30,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.m-foot',
+          start: 'top 88%',
+          toggleActions: 'play none none reverse',
         },
-      );
-      if (t.scrollTrigger) sts.push(t.scrollTrigger);
-    });
+      });
+    }, sectionRef);
 
-    const t1 = gsap.from('.m-foot', {
-      opacity: 0,
-      y: 30,
-      duration: 1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.m-foot',
-        start: 'top 88%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-    if (t1.scrollTrigger) sts.push(t1.scrollTrigger);
-
-    return () => {
-      sts.forEach((st) => st.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   const { tag, lines, foot } = MANIFESTO;
 
   return (
-    <section className="manifesto section">
+    <section ref={sectionRef} className="manifesto section">
       <div className="sec-tag">
         ( {tag.num} ) — <em>{tag.en}</em> {tag.cn}
       </div>

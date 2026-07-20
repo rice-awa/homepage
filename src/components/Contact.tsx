@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CONTACT } from '../constants/content';
@@ -13,52 +13,49 @@ const ArrowIcon = () => (
 );
 
 export default function Contact() {
-  useEffect(() => {
-    const sts: ScrollTrigger[] = [];
+  const sectionRef = useRef<HTMLElement>(null);
 
-    (gsap.utils.toArray('[data-ct]') as HTMLElement[]).forEach((el, i) => {
-      const t = gsap.fromTo(el, { yPercent: 110 }, {
-        yPercent: 0,
-        duration: 1.1,
-        ease: 'expo.out',
-        delay: i * 0.1,
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      (gsap.utils.toArray('[data-ct]') as HTMLElement[]).forEach((el, i) => {
+        gsap.fromTo(el, { yPercent: 110 }, {
+          yPercent: 0,
+          duration: 1.1,
+          ease: 'expo.out',
+          delay: i * 0.1,
+          scrollTrigger: {
+            trigger: '.contact-title',
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      });
+
+      gsap.from('.c-link', {
+        opacity: 0,
+        y: 34,
+        duration: 0.9,
+        stagger: 0.09,
+        ease: 'power3.out',
         scrollTrigger: {
-          trigger: '.contact-title',
-          start: 'top 85%',
+          trigger: '.contact-links',
+          start: 'top 88%',
           toggleActions: 'play none none reverse',
         },
       });
-      if (t.scrollTrigger) sts.push(t.scrollTrigger);
-    });
 
-    const t1 = gsap.from('.c-link', {
-      opacity: 0,
-      y: 34,
-      duration: 0.9,
-      stagger: 0.09,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.contact-links',
-        start: 'top 88%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-    if (t1.scrollTrigger) sts.push(t1.scrollTrigger);
+      gsap.from('.footer', {
+        opacity: 0,
+        duration: 1,
+        scrollTrigger: {
+          trigger: '.footer',
+          start: 'top 96%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+    }, sectionRef);
 
-    const t2 = gsap.from('.footer', {
-      opacity: 0,
-      duration: 1,
-      scrollTrigger: {
-        trigger: '.footer',
-        start: 'top 96%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-    if (t2.scrollTrigger) sts.push(t2.scrollTrigger);
-
-    return () => {
-      sts.forEach((st) => st.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   const handleBackToTop = (e: React.MouseEvent) => {
@@ -74,7 +71,7 @@ export default function Contact() {
   const { tag, title, links, footer } = CONTACT;
 
   return (
-    <section className="contact section" id="contact">
+    <section ref={sectionRef} className="contact section" id="contact">
       <div className="contact-glow" />
       <div className="sec-tag">
         ( {tag.num} ) — <em>{tag.en}</em> {tag.cn}
