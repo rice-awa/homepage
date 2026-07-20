@@ -9,40 +9,45 @@ export default function Manifesto() {
   const linesRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      linesRef.current.forEach((line) => {
-        if (!line) return;
-        const inner = line.querySelector('.m-line-inner');
-        gsap.fromTo(
-          inner,
-          { yPercent: 105 },
-          {
-            yPercent: 0,
-            ease: 'power3.out',
-            duration: 1,
-            scrollTrigger: {
-              trigger: line,
-              start: 'top 88%',
-              toggleActions: 'play none none reverse',
-            },
-          },
-        );
-      });
+    const sts: ScrollTrigger[] = [];
 
-      gsap.from('.m-foot', {
-        opacity: 0,
-        y: 30,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.m-foot',
-          start: 'top 88%',
-          toggleActions: 'play none none reverse',
+    linesRef.current.forEach((line) => {
+      if (!line) return;
+      const inner = line.querySelector('.m-line-inner');
+      if (!inner) return;
+      const t = gsap.fromTo(
+        inner,
+        { yPercent: 105 },
+        {
+          yPercent: 0,
+          ease: 'power3.out',
+          duration: 1,
+          scrollTrigger: {
+            trigger: line,
+            start: 'top 88%',
+            toggleActions: 'play none none reverse',
+          },
         },
-      });
+      );
+      if (t.scrollTrigger) sts.push(t.scrollTrigger);
     });
 
-    return () => ctx.revert();
+    const t1 = gsap.from('.m-foot', {
+      opacity: 0,
+      y: 30,
+      duration: 1,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.m-foot',
+        start: 'top 88%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+    if (t1.scrollTrigger) sts.push(t1.scrollTrigger);
+
+    return () => {
+      sts.forEach((st) => st.kill());
+    };
   }, []);
 
   const { tag, lines, foot } = MANIFESTO;

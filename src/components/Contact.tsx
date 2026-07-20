@@ -14,46 +14,51 @@ const ArrowIcon = () => (
 
 export default function Contact() {
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      (gsap.utils.toArray('[data-ct]') as HTMLElement[]).forEach((el, i) => {
-        gsap.fromTo(el, { yPercent: 110 }, {
-          yPercent: 0,
-          duration: 1.1,
-          ease: 'expo.out',
-          delay: (i as number) * 0.1,
-          scrollTrigger: {
-            trigger: '.contact-title',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        });
-      });
+    const sts: ScrollTrigger[] = [];
 
-      gsap.from('.c-link', {
-        opacity: 0,
-        y: 34,
-        duration: 0.9,
-        stagger: 0.09,
-        ease: 'power3.out',
+    (gsap.utils.toArray('[data-ct]') as HTMLElement[]).forEach((el, i) => {
+      const t = gsap.fromTo(el, { yPercent: 110 }, {
+        yPercent: 0,
+        duration: 1.1,
+        ease: 'expo.out',
+        delay: i * 0.1,
         scrollTrigger: {
-          trigger: '.contact-links',
-          start: 'top 88%',
+          trigger: '.contact-title',
+          start: 'top 85%',
           toggleActions: 'play none none reverse',
         },
       });
-
-      gsap.from('.footer', {
-        opacity: 0,
-        duration: 1,
-        scrollTrigger: {
-          trigger: '.footer',
-          start: 'top 96%',
-          toggleActions: 'play none none reverse',
-        },
-      });
+      if (t.scrollTrigger) sts.push(t.scrollTrigger);
     });
 
-    return () => ctx.revert();
+    const t1 = gsap.from('.c-link', {
+      opacity: 0,
+      y: 34,
+      duration: 0.9,
+      stagger: 0.09,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.contact-links',
+        start: 'top 88%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+    if (t1.scrollTrigger) sts.push(t1.scrollTrigger);
+
+    const t2 = gsap.from('.footer', {
+      opacity: 0,
+      duration: 1,
+      scrollTrigger: {
+        trigger: '.footer',
+        start: 'top 96%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+    if (t2.scrollTrigger) sts.push(t2.scrollTrigger);
+
+    return () => {
+      sts.forEach((st) => st.kill());
+    };
   }, []);
 
   const handleBackToTop = (e: React.MouseEvent) => {
@@ -77,10 +82,10 @@ export default function Contact() {
 
       <h2 className="contact-title">
         <span className="row">
-          <span data-ct="true">{title.row1}</span>
+          <span data-ct="">{title.row1}</span>
         </span>
         <span className="row">
-          <span data-ct="true" className="accent">{title.row2}</span>
+          <span data-ct="" className="accent">{title.row2}</span>
         </span>
       </h2>
 

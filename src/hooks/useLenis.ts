@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -10,7 +10,7 @@ let lenisInstance: Lenis | null = null;
 export function useLenis(reduced: boolean) {
   const lenisRef = useRef<Lenis | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (reduced) return;
 
     const lenis = new Lenis({

@@ -8,17 +8,19 @@ export default function ProgressBar() {
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        start: 0,
-        end: 'max',
-        onUpdate(self) {
-          gsap.set('#progressBar', { scaleX: self.progress });
-        },
-      });
+    let st: ScrollTrigger | null = null;
+
+    st = ScrollTrigger.create({
+      start: 0,
+      end: 'max',
+      onUpdate(self) {
+        gsap.set('#progressBar', { scaleX: self.progress });
+      },
     });
 
-    return () => ctx.revert();
+    return () => {
+      st?.kill();
+    };
   }, []);
 
   return (

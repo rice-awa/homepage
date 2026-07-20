@@ -96,68 +96,74 @@ export default function Works() {
 
     const getDist = () => track.scrollWidth - window.innerWidth;
 
-    const ctx = gsap.context(() => {
-      const scrollTween = gsap.to(track, {
-        x: () => -getDist(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '#works',
-          start: 'top top',
-          end: () => '+=' + getDist(),
-          pin: true,
-          scrub: 1,
-          invalidateOnRefresh: true,
-          anticipatePin: 1,
-          onUpdate(self) {
-            gsap.set(progressFill, { scaleX: self.progress });
-            const idx = Math.min(
-              cards.length,
-              Math.max(1, Math.round(self.progress * (cards.length + 1.6) - 0.4)),
-            );
-            if (worksNow) worksNow.textContent = String(idx).padStart(2, '0');
-          },
+    const sts: ScrollTrigger[] = [];
+
+    const scrollTween = gsap.to(track, {
+      x: () => -getDist(),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#works',
+        start: 'top top',
+        end: () => '+=' + getDist(),
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+        onUpdate(self) {
+          gsap.set(progressFill, { scaleX: self.progress });
+          const idx = Math.min(
+            cards.length,
+            Math.max(1, Math.round(self.progress * (cards.length + 1.6) - 0.4)),
+          );
+          if (worksNow) worksNow.textContent = String(idx).padStart(2, '0');
         },
-      });
-
-      gsap.utils.toArray('.work-cover img').forEach((img) => {
-        const el = img as HTMLImageElement;
-        gsap.fromTo(
-          el,
-          { x: 0 },
-          {
-            x: () => -(el.clientWidth * 0.1),
-            ease: 'none',
-            scrollTrigger: {
-              trigger: el.closest('.work-card'),
-              containerAnimation: scrollTween,
-              start: 'left right',
-              end: 'right left',
-              scrub: true,
-            },
-          },
-        );
-      });
-
-      cards.forEach((card, i) => {
-        gsap.fromTo(
-          card,
-          { rotate: i % 2 ? 0.8 : -0.8 },
-          {
-            rotate: 0,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              containerAnimation: scrollTween,
-              start: 'left right',
-              end: 'left 30%',
-              scrub: true,
-            },
-          },
-        );
-      });
+      },
     });
 
-    return () => ctx.revert();
+    gsap.utils.toArray('.work-cover img').forEach((img) => {
+      const el = img as HTMLImageElement;
+      const t = gsap.fromTo(
+        el,
+        { x: 0 },
+        {
+          x: () => -(el.clientWidth * 0.1),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: el.closest('.work-card'),
+            containerAnimation: scrollTween,
+            start: 'left right',
+            end: 'right left',
+            scrub: true,
+          },
+        },
+      );
+      if (t.scrollTrigger) sts.push(t.scrollTrigger);
+    });
+
+    cards.forEach((card, i) => {
+      const t = gsap.fromTo(
+        card,
+        { rotate: i % 2 ? 0.8 : -0.8 },
+        {
+          rotate: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: card,
+            containerAnimation: scrollTween,
+            start: 'left right',
+            end: 'left 30%',
+            scrub: true,
+          },
+        },
+      );
+      if (t.scrollTrigger) sts.push(t.scrollTrigger);
+    });
+
+    return () => {
+      sts.forEach((st) => st.kill());
+      // Kill the main scrollTrigger (attached to the main tween)
+      if (scrollTween.scrollTrigger) scrollTween.scrollTrigger.kill();
+    };
   }, [ready]);
 
   return (
