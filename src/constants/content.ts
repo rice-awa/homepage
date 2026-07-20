@@ -17,6 +17,7 @@ export const NAV = {
   links: [
     { label: 'WORKS', href: '#works' },
     { label: 'STACK', href: '#stack' },
+    { label: 'ACTIVITY', href: '#activity' },
     { label: 'ABOUT', href: '#about' },
     { label: 'CONTACT', href: '#contact' },
   ],
@@ -130,8 +131,21 @@ export const STACK = {
   ],
 };
 
+export const ACTIVITY = {
+  tag: { num: '04', en: 'OPEN SOURCE ACTIVITY', cn: '开源贡献' },
+  username: 'rice-awa',
+  totalLabel: 'CONTRIBUTIONS',
+  rollingLabel: 'LAST 365 DAYS',
+  calendarLabel: 'CONTRIBUTION CALENDAR',
+  lessLabel: 'LESS',
+  moreLabel: 'MORE',
+  retryLabel: 'RETRY',
+  unavailableLabel: 'CONTRIBUTION DATA UNAVAILABLE',
+  loadingLabel: 'LOADING CONTRIBUTIONS',
+};
+
 export const ABOUT = {
-  tag: { num: '04', en: 'ABOUT', cn: '关于我' },
+  tag: { num: '05', en: 'ABOUT', cn: '关于我' },
   heading: {
     line1: '你好，我是 ',
     accent: 'riceawa',
@@ -166,7 +180,7 @@ export const ABOUT = {
 };
 
 export const CONTACT = {
-  tag: { num: '05', en: 'CONTACT', cn: '联系我' },
+  tag: { num: '06', en: 'CONTACT', cn: '联系我' },
   title: {
     row1: "LET'S BUILD",
     row2: 'SOMETHING →',

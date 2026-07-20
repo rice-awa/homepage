@@ -10,6 +10,7 @@ import Hero from './components/Hero';
 import Manifesto from './components/Manifesto';
 import Works from './components/Works';
 import Stack from './components/Stack';
+import Contributions from './components/Contributions';
 import About from './components/About';
 import Contact from './components/Contact';
 import { useClock } from './hooks/useClock';
@@ -144,6 +145,7 @@ export default function App() {
         <Manifesto />
         <Works />
         <Stack reduced={reduced} />
+        <Contributions />
         <About />
         <Contact />
       </main>
