@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>riceawa — Creative Developer</title>
+<meta name="description" content="riceawa 的个人作品集 — 全栈开发者 / 创造有温度的技术体验">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04070e;
+  --bg2:#070c16;
+  --panel:#0a101d;
+  --ink:#eaf2fb;
+  --dim:#8b9bb4;
+  --cyan:#22d3ee;
+  --blue:#60a5fa;
+  --teal:#2dd4bf;
+  --line:rgba(148,180,220,.14);
+  --font-d:'Space Grotesk','Noto Sans SC',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.65,.05,0,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) var(--bg)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-d);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+::selection{background:var(--cyan);color:#04070e}
+a{color:inherit;text-decoration:none;cursor:none}
+img{display:block;max-width:100%}
+.mono{font-family:var(--font-m)}
+
+/* ---------- 噪点覆盖 ---------- */
+body::after{
+  content:'';position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 自定义光标 ---------- */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:3000;border-radius:50%}
+.cursor-dot{width:8px;height:8px;background:var(--cyan)}
+.cursor-ring{
+  width:38px;height:38px;border:1px solid rgba(34,211,238,.55);
+  display:flex;align-items:center;justify-content:center;
+  transition:width .35s var(--ease),height .35s var(--ease),background .35s,border-color .35s;
+}
+.cursor-ring .cursor-label{
+  font-family:var(--font-m);font-size:10px;letter-spacing:.15em;color:#04070e;
+  opacity:0;transition:opacity .25s;user-select:none;
+}
+.cursor-ring.is-view{width:84px;height:84px;background:var(--cyan);border-color:var(--cyan)}
+.cursor-ring.is-view .cursor-label{opacity:1}
+.cursor-ring.is-link{width:56px;height:56px;background:rgba(34,211,238,.12)}
+@media (hover:none),(pointer:coarse){
+  body,a{cursor:auto}
+  .cursor-dot,.cursor-ring{display:none}
+}
+
+/* ---------- 滚动进度 ---------- */
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:1500;background:rgba(148,180,220,.08)}
+.progress-bar{height:100%;width:100%;background:linear-gradient(90deg,var(--teal),var(--cyan),var(--blue));transform-origin:left;transform:scaleX(0)}
+
+/* ---------- Loader ---------- */
+.loader{position:fixed;inset:0;z-index:5000;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2rem}
+.loader-name{font-size:clamp(2rem,6vw,4.5rem);font-weight:700;letter-spacing:-.03em;overflow:hidden;display:flex}
+.loader-name span{display:inline-block;will-change:transform}
+.loader-pct{font-family:var(--font-m);font-size:12px;letter-spacing:.3em;color:var(--dim)}
+.loader-pct em{color:var(--cyan);font-style:normal}
+.loader-bar{width:min(320px,60vw);height:1px;background:var(--line);position:relative;overflow:hidden}
+.loader-bar i{position:absolute;inset:0;background:var(--cyan);transform-origin:left;transform:scaleX(0)}
+
+/* ---------- 导航 ---------- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem clamp(1.2rem,4vw,3.5rem);
+  opacity:0;transform:translateY(-16px);
+  transition:background .5s,backdrop-filter .5s,padding .5s,border-color .5s;
+  border-bottom:1px solid transparent;
+}
+.nav.is-scrolled{background:rgba(4,7,14,.6);backdrop-filter:blur(14px);padding-top:.9rem;padding-bottom:.9rem;border-color:var(--line)}
+.nav-logo{font-weight:700;letter-spacing:-.02em;font-size:1.05rem;display:flex;align-items:center;gap:.5rem}
+.nav-logo i{width:9px;height:9px;background:var(--cyan);border-radius:2px;display:inline-block;animation:blink 3s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.nav-links{display:flex;gap:2.2rem;font-family:var(--font-m);font-size:11px;letter-spacing:.2em}
+.nav-links a{position:relative;color:var(--dim);transition:color .3s;padding:.3rem 0}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;background:var(--cyan);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav-time{font-family:var(--font-m);font-size:11px;letter-spacing:.15em;color:var(--dim)}
+.nav-time em{color:var(--cyan);font-style:normal}
+@media(max-width:768px){.nav-links{display:none}}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.hero-bg{position:absolute;inset:-22%;z-index:0;transform:rotate(-12deg)}
+#ribbons{width:100%;height:100%;filter:blur(70px) saturate(1.3)}
+.hero-grid{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:clamp(60px,8vw,120px) clamp(60px,8vw,120px);
+  mask-image:radial-gradient(ellipse 90% 80% at 50% 45%,transparent 30%,#000 100%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 80% at 50% 45%,transparent 30%,#000 100%);
+  opacity:.5;
+}
+.hero-inner{position:relative;z-index:2;padding:0 clamp(1.2rem,5vw,4.5rem)}
+.hero-eyebrow{display:flex;align-items:center;gap:1rem;font-family:var(--font-m);font-size:11px;letter-spacing:.3em;color:var(--dim);margin-bottom:clamp(1.2rem,3vh,2.4rem);overflow:hidden}
+.hero-eyebrow .dash{width:3rem;height:1px;background:var(--cyan);display:inline-block}
+.hero-eyebrow>span{display:inline-block}
+.hero-title{
+  font-size:clamp(3.4rem,13.5vw,12.5rem);
+  font-weight:700;line-height:.92;letter-spacing:-.045em;
+  display:flex;flex-wrap:wrap;
+}
+.hero-title .char{display:inline-block;will-change:transform}
+.hero-title-mask{overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.hero-sub{
+  display:flex;align-items:baseline;gap:clamp(1rem,3vw,2.5rem);flex-wrap:wrap;
+  margin-top:clamp(.8rem,2.5vh,1.8rem);
+}
+.hero-sub .stroke{
+  font-size:clamp(1.8rem,5.5vw,4.6rem);font-weight:700;letter-spacing:-.03em;line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(234,242,251,.5);
+  overflow:hidden;
+}
+.hero-sub .stroke span{display:inline-block;will-change:transform}
+.hero-cn{
+  font-size:clamp(.95rem,1.6vw,1.25rem);color:var(--dim);font-weight:400;max-width:34ch;line-height:1.7;
+  opacity:0;transform:translateY(20px);
+}
+.hero-cn strong{color:var(--cyan);font-weight:500}
+.hero-foot{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding:0 clamp(1.2rem,5vw,4.5rem) clamp(1.4rem,3.5vh,2.6rem);
+  opacity:0;
+}
+.scroll-hint{display:flex;flex-direction:column;align-items:flex-start;gap:.7rem;font-family:var(--font-m);font-size:10px;letter-spacing:.3em;color:var(--dim)}
+.scroll-hint .wire{width:1px;height:52px;background:var(--line);position:relative;overflow:hidden}
+.scroll-hint .wire::after{content:'';position:absolute;top:-40%;left:0;width:100%;height:40%;background:var(--cyan);animation:wire 2s var(--ease) infinite}
+@keyframes wire{to{top:110%}}
+.hero-social{display:flex;gap:1.6rem;font-family:var(--font-m);font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.hero-social a{transition:color .3s}
+.hero-social a:hover{color:var(--cyan)}
+.hero-coord{position:absolute;z-index:2;right:clamp(1.2rem,5vw,4.5rem);top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:right center;font-family:var(--font-m);font-size:10px;letter-spacing:.35em;color:rgba(139,155,180,.45);white-space:nowrap}
+@media(max-width:900px){.hero-coord{display:none}}
+
+/* ---------- 章节公共 ---------- */
+.section{position:relative}
+.sec-tag{
+  display:flex;align-items:center;gap:.9rem;
+  font-family:var(--font-m);font-size:11px;letter-spacing:.3em;color:var(--dim);
+}
+.sec-tag::before{content:'';width:2.4rem;height:1px;background:var(--cyan)}
+.sec-tag em{color:var(--cyan);font-style:normal}
+
+/* ---------- Manifesto ---------- */
+.manifesto{padding:clamp(7rem,16vh,12rem) clamp(1.2rem,5vw,4.5rem);background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+.manifesto .sec-tag{margin-bottom:clamp(2.5rem,6vh,4.5rem)}
+.m-line{overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.m-line-inner{
+  display:flex;align-items:baseline;gap:clamp(1rem,3vw,2.4rem);flex-wrap:wrap;
+  font-size:clamp(2.2rem,7.5vw,6.5rem);font-weight:700;letter-spacing:-.04em;line-height:1.02;
+  will-change:transform;
+}
+.m-line-inner .cn{font-size:clamp(.85rem,1.5vw,1.1rem);color:var(--dim);font-weight:400;letter-spacing:.1em}
+.m-line:nth-child(odd) .m-line-inner .accent{color:var(--cyan)}
+.m-line:nth-child(even) .m-line-inner .accent{color:transparent;-webkit-text-stroke:1.2px var(--teal)}
+.m-foot{margin-top:clamp(2.5rem,6vh,4rem);max-width:52ch;color:var(--dim);line-height:1.9;font-size:clamp(.9rem,1.3vw,1.05rem)}
+.m-foot strong{color:var(--ink);font-weight:500}
+
+/* ---------- Works ---------- */
+.works{background:var(--bg2)}
+.works-pin{height:100vh;overflow:hidden;display:flex;align-items:center}
+.works-track{display:flex;align-items:center;gap:clamp(2rem,4vw,4rem);padding:0 clamp(1.2rem,5vw,4.5rem);will-change:transform}
+.work-intro{flex-shrink:0;width:min(560px,78vw)}
+.work-intro h2{font-size:clamp(2.6rem,7vw,6rem);font-weight:700;letter-spacing:-.04em;line-height:1;margin:.8em 0 .5em}
+.work-intro h2 .outline{color:transparent;-webkit-text-stroke:1px rgba(234,242,251,.55)}
+.work-intro p{color:var(--dim);line-height:1.9;max-width:40ch;font-size:clamp(.9rem,1.2vw,1.02rem)}
+.work-intro .drag{margin-top:2.4rem;display:flex;align-items:center;gap:1rem;font-family:var(--font-m);font-size:10px;letter-spacing:.3em;color:var(--dim)}
+.work-intro .drag .line{width:4rem;height:1px;background:var(--cyan);animation:dragline 2.2s var(--ease) infinite}
+@keyframes dragline{0%{transform:scaleX(.3);transform-origin:left}50%{transform:scaleX(1)}100%{transform:scaleX(.3);transform-origin:right}}
+.work-card{flex-shrink:0;width:clamp(300px,58vw,780px)}
+.work-cover{
+  position:relative;aspect-ratio:16/10;overflow:hidden;border:1px solid var(--line);border-radius:6px;
+  background:var(--panel);
+}
+.work-cover img{width:112%;height:100%;object-fit:cover;will-change:transform;transition:filter .5s}
+.work-cover:hover img{filter:saturate(1.15)}
+.work-cover .veil{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(4,7,14,.55));pointer-events:none}
+/* 生成式封面（无图项目） */
+.cover-gen{display:flex;flex-direction:column;justify-content:space-between;padding:clamp(1.2rem,2.5vw,2.2rem)}
+.cover-gen::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 80% 110%,var(--cg,rgba(34,211,238,.28)),transparent 65%)}
+.cover-gen .cg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(180deg,#000,transparent 75%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 75%)}
+.cg-title{position:relative;font-size:clamp(2.2rem,4.6vw,4.2rem);font-weight:700;line-height:.98;letter-spacing:-.04em}
+.cg-title em{font-style:normal;color:var(--cg-strong,var(--cyan))}
+.cg-meta{position:relative;font-family:var(--font-m);font-size:10px;letter-spacing:.28em;color:var(--dim);line-height:2}
+.cg-num{position:absolute;right:clamp(1rem,2vw,1.8rem);bottom:clamp(.6rem,1.5vw,1.2rem);font-size:clamp(3.6rem,7vw,6.4rem);font-weight:700;color:transparent;-webkit-text-stroke:1px rgba(139,155,180,.4);line-height:1}
+.work-info{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:1.2rem .2rem 0}
+.work-info .wi-l{display:flex;flex-direction:column;gap:.55rem}
+.work-num{font-family:var(--font-m);font-size:10px;letter-spacing:.3em;color:var(--cyan)}
+.work-name{font-size:clamp(1.15rem,2vw,1.6rem);font-weight:600;letter-spacing:-.02em}
+.work-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.work-tags li{list-style:none;font-family:var(--font-m);font-size:9px;letter-spacing:.18em;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:.32rem .7rem}
+.work-desc{margin-top:.75rem;color:var(--dim);font-size:.88rem;line-height:1.75;max-width:46ch}
+.work-link{flex-shrink:0;width:46px;height:46px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .4s,border-color .4s;will-change:transform}
+.work-link svg{width:16px;height:16px;stroke:var(--ink);transition:transform .4s var(--ease)}
+.work-card:hover .work-link{background:var(--cyan);border-color:var(--cyan)}
+.work-card:hover .work-link svg{stroke:#04070e;transform:rotate(45deg)}
+.work-outro{flex-shrink:0;width:min(420px,70vw);display:flex;flex-direction:column;align-items:flex-start;gap:1.4rem}
+.work-outro h3{font-size:clamp(1.8rem,4vw,3.2rem);font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.work-outro a{display:inline-flex;align-items:center;gap:.8rem;font-family:var(--font-m);font-size:11px;letter-spacing:.25em;color:var(--cyan);border-bottom:1px solid rgba(34,211,238,.4);padding-bottom:.5rem;transition:border-color .3s}
+.work-outro a:hover{border-color:var(--cyan)}
+.works-progress{position:absolute;left:clamp(1.2rem,5vw,4.5rem);right:clamp(1.2rem,5vw,4.5rem);bottom:clamp(1.4rem,3.5vh,2.4rem);height:1px;background:var(--line);z-index:5}
+.works-progress i{position:absolute;inset:0;background:var(--cyan);transform-origin:left;transform:scaleX(0)}
+.works-counter{position:absolute;right:clamp(1.2rem,5vw,4.5rem);bottom:clamp(2.4rem,6vh,3.8rem);font-family:var(--font-m);font-size:10px;letter-spacing:.3em;color:var(--dim);z-index:5}
+.works-counter em{color:var(--cyan);font-style:normal}
+
+/* ---------- Stack marquee ---------- */
+.stack{padding:clamp(6rem,14vh,10rem) 0;background:var(--bg);overflow:hidden}
+.stack .sec-tag{padding:0 clamp(1.2rem,5vw,4.5rem);margin-bottom:clamp(2.5rem,6vh,4rem)}
+.marquee{overflow:hidden;white-space:nowrap;padding:1.1rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.marquee+.marquee{border-top:none}
+.marquee-track{display:inline-flex;align-items:center;will-change:transform}
+.marquee-item{display:inline-flex;align-items:center;gap:2.6rem;padding-right:2.6rem;font-size:clamp(2rem,5vw,4.2rem);font-weight:700;letter-spacing:-.03em;color:var(--ink)}
+.marquee-item .hollow{color:transparent;-webkit-text-stroke:1px rgba(139,155,180,.55)}
+.marquee-item .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+.marquee-item:nth-child(even) .dot{background:var(--teal);border-radius:2px}
+.marquee-foot{padding:clamp(2rem,5vh,3.5rem) clamp(1.2rem,5vw,4.5rem) 0;display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap;color:var(--dim);font-size:.9rem;line-height:1.8}
+.marquee-foot>div{max-width:38ch}
+.marquee-foot strong{color:var(--ink);font-weight:500}
+
+/* ---------- About ---------- */
+.about{padding:clamp(7rem,16vh,12rem) clamp(1.2rem,5vw,4.5rem);background:linear-gradient(180deg,var(--bg),var(--bg2))}
+.about .sec-tag{margin-bottom:clamp(2.5rem,6vh,4rem)}
+.about-grid{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:clamp(2.5rem,6vw,6rem);align-items:start}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr}}
+.avatar-wrap{position:relative}
+.avatar-frame{position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;aspect-ratio:1}
+.avatar-frame img{width:100%;height:100%;object-fit:cover;transform:scale(1.15);will-change:transform}
+.avatar-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(4,7,14,.45));pointer-events:none}
+.avatar-ring{position:absolute;width:150px;height:150px;right:-46px;top:-46px;animation:spin 14s linear infinite;z-index:2}
+@keyframes spin{to{transform:rotate(360deg)}}
+.avatar-ring text{font-family:var(--font-m);font-size:11.5px;letter-spacing:.32em;fill:var(--cyan)}
+.avatar-caption{margin-top:1rem;display:flex;justify-content:space-between;font-family:var(--font-m);font-size:10px;letter-spacing:.25em;color:var(--dim)}
+.about-body h3{font-size:clamp(1.9rem,4.2vw,3.4rem);font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-bottom:1.6rem}
+.about-body h3 .accent{color:var(--cyan)}
+.about-body p{color:var(--dim);line-height:2;max-width:56ch;margin-bottom:1.1rem;font-size:clamp(.9rem,1.25vw,1.02rem)}
+.about-body p strong{color:var(--ink);font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:2.6rem}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--bg);padding:1.4rem 1.2rem;display:flex;flex-direction:column;gap:.4rem}
+.stat b{font-size:clamp(1.7rem,3vw,2.5rem);font-weight:700;letter-spacing:-.03em;color:var(--ink)}
+.stat b em{color:var(--cyan);font-style:normal}
+.stat span{font-family:var(--font-m);font-size:9px;letter-spacing:.22em;color:var(--dim)}
+
+/* ---------- Contact ---------- */
+.contact{padding:clamp(7rem,18vh,13rem) clamp(1.2rem,5vw,4.5rem) 2rem;background:var(--bg2);position:relative;overflow:hidden}
+.contact-glow{position:absolute;left:50%;top:-30%;width:120vw;height:80vh;transform:translateX(-50%);background:radial-gradient(ellipse 50% 50% at 50% 40%,rgba(34,211,238,.13),transparent 70%);pointer-events:none}
+.contact .sec-tag{margin-bottom:clamp(2rem,5vh,3.5rem)}
+.contact-title{font-size:clamp(3rem,11vw,10rem);font-weight:700;letter-spacing:-.045em;line-height:.95;margin-bottom:clamp(2.5rem,7vh,5rem)}
+.contact-title .row{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.contact-title .row>span{display:inline-block;will-change:transform}
+.contact-title .accent{color:transparent;-webkit-text-stroke:1.5px var(--cyan)}
+.contact-links{border-top:1px solid var(--line)}
+.c-link{
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+  padding:clamp(1.3rem,3vh,2rem) .2rem;border-bottom:1px solid var(--line);
+  position:relative;overflow:hidden;
+}
+.c-link::before{content:'';position:absolute;inset:0;background:var(--cyan);transform:scaleY(0);transform-origin:bottom;transition:transform .5s var(--ease);z-index:0}
+.c-link:hover::before{transform:scaleY(1)}
+.c-link>*{position:relative;z-index:1;transition:color .4s}
+.c-link .cl-name{font-size:clamp(1.4rem,3.4vw,2.6rem);font-weight:600;letter-spacing:-.02em;display:flex;align-items:baseline;gap:1.1rem}
+.c-link .cl-name .idx{font-family:var(--font-m);font-size:10px;letter-spacing:.25em;color:var(--dim)}
+.c-link .cl-note{font-family:var(--font-m);font-size:10px;letter-spacing:.22em;color:var(--dim)}
+.c-link .cl-arrow{width:22px;height:22px;stroke:var(--ink);transition:transform .5s var(--ease)}
+.c-link:hover .cl-name,.c-link:hover .cl-note{color:#04070e}
+.c-link:hover .cl-name .idx{color:rgba(4,7,14,.6)}
+.c-link:hover .cl-arrow{stroke:#04070e;transform:translate(4px,-4px)}
+.footer{margin-top:clamp(4rem,10vh,7rem);display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap;font-family:var(--font-m);font-size:10px;letter-spacing:.22em;color:var(--dim)}
+.footer .f-top{display:flex;align-items:center;gap:.6rem}
+.footer .f-top i{width:8px;height:8px;background:var(--teal);border-radius:50%;animation:blink 3s infinite}
+.to-top{color:var(--dim);transition:color .3s}
+.to-top:hover{color:var(--cyan)}
+
+@media(max-width:640px){
+  .work-card{width:82vw}
+  .hero-title{letter-spacing:-.03em}
+  .m-line-inner{letter-spacing:-.025em}
+}
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div class="loader" id="loader">
+  <div class="loader-name" id="loaderName"></div>
+  <div class="loader-bar"><i id="loaderBarFill"></i></div>
+  <div class="loader-pct">LOADING — <em id="loaderPct">000</em> %</div>
+</div>
+
+<!-- 光标 -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"><span class="cursor-label" id="cursorLabel">VIEW</span></div>
+
+<!-- 进度 -->
+<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- 导航 -->
+<nav class="nav" id="nav">
+  <a href="#top" class="nav-logo" data-cursor="link"><i></i>RICE—AWA</a>
+  <div class="nav-links">
+    <a href="#works" data-cursor="link" data-nav>WORKS</a>
+    <a href="#stack" data-cursor="link" data-nav>STACK</a>
+    <a href="#about" data-cursor="link" data-nav>ABOUT</a>
+    <a href="#contact" data-cursor="link" data-nav>CONTACT</a>
+  </div>
+  <div class="nav-time">LOCAL — <em id="clock">00:00:00</em></div>
+</nav>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="heroBg"><canvas id="ribbons"></canvas></div>
+    <div class="hero-grid"></div>
+    <div class="hero-coord">PORTFOLIO © 2023—2026 / FULL-STACK × CREATIVE</div>
+    <div class="hero-inner" id="heroInner">
+      <div class="hero-eyebrow"><span class="dash"></span><span>CREATIVE DEVELOPER — 创意开发者</span></div>
+      <div class="hero-title-mask"><h1 class="hero-title" id="heroTitle">RICEAWA</h1></div>
+      <div class="hero-sub">
+        <span class="stroke"><span id="heroStroke">FULL-STACK</span></span>
+        <p class="hero-cn" id="heroCn">用代码构建有趣的体验 —— 从 <strong>Minecraft 模组</strong>到 <strong>AI Agent</strong>，从浏览器到服务器。</p>
+      </div>
+    </div>
+    <div class="hero-foot" id="heroFoot">
+      <div class="scroll-hint"><span>SCROLL</span><span class="wire"></span></div>
+      <div class="hero-social">
+        <a href="https://github.com/rice-awa" target="_blank" rel="noopener" data-cursor="link">GITHUB ↗</a>
+        <a href="https://space.bilibili.com/521856101" target="_blank" rel="noopener" data-cursor="link">BILIBILI ↗</a>
+        <a href="https://blog.rice-awa.top" target="_blank" rel="noopener" data-cursor="link">BLOG ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto section">
+    <div class="sec-tag">( 01 ) — <em>MANIFESTO</em> 创作宣言</div>
+    <div class="m-line"><div class="m-line-inner"><span>WRITE <span class="accent">CODE</span>,</span><span class="cn">把想法变成可运行的现实</span></div></div>
+    <div class="m-line"><div class="m-line-inner"><span>CRAFT <span class="accent">WORLDS</span>,</span><span class="cn">在像素与协议之间造世界</span></div></div>
+    <div class="m-line"><div class="m-line-inner"><span>SHARE <span class="accent">WONDER</span>.</span><span class="cn">把好奇心开源给每一个人</span></div></div>
+    <p class="m-foot">我相信代码是一种创作媒介。从 <strong>Minecraft 的方块世界</strong>到 <strong>大语言模型的推理边界</strong>，我持续在「工程」与「趣味」的交汇处建造东西 —— 然后把过程分享出来。</p>
+  </section>
+
+  <!-- WORKS -->
+  <section class="works section" id="works">
+    <div class="works-pin" id="worksPin">
+      <div class="works-track" id="worksTrack">
+
+        <div class="work-intro">
+          <div class="sec-tag">( 02 ) — <em>SELECTED WORKS</em> 精选作品</div>
+          <h2>建造过的一些<br><span class="outline">有趣的东西</span></h2>
+          <p>真实上线、真实用户在用的项目 —— 从游戏模组到 AI 系统，每一个都从「自己想要用」开始。</p>
+          <div class="drag"><span class="line"></span><span>SCROLL TO EXPLORE</span></div>
+        </div>
+
+        <article class="work-card" data-cursor="view">
+          <div class="work-cover">
+            <img src="assets/mcbe-ai-agent-hero.webp" alt="MCBE AI Agent 项目封面">
+            <div class="veil"></div>
+          </div>
+          <div class="work-info">
+            <div class="wi-l">
+              <span class="work-num">P.01 — 2026</span>
+              <h3 class="work-name">MCBE AI Agent</h3>
+              <ul class="work-tags"><li>PYTHON</li><li>PYDANTICAI</li><li>WEBSOCKET</li><li>MCP</li></ul>
+              <p class="work-desc">Minecraft 基岩版的 AI Agent：异步消息队列解耦、多 LLM 支持、流式输出与多人会话隔离，让 AI 真正「住进」服务器。</p>
+            </div>
+            <a class="work-link" href="https://github.com/rice-awa" target="_blank" rel="noopener" data-cursor="link" data-magnetic aria-label="查看 MCBE AI Agent">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="work-card" data-cursor="view">
+          <div class="work-cover">
+            <img src="assets/lumichat-hero.webp" alt="LumiChat 项目封面">
+            <div class="veil"></div>
+          </div>
+          <div class="work-info">
+            <div class="wi-l">
+              <span class="work-num">P.02 — 2026</span>
+              <h3 class="work-name">LumiChat</h3>
+              <ul class="work-tags"><li>JAVA</li><li>FABRIC</li><li>LLM</li><li>TOOL-CALL</li></ul>
+              <p class="work-desc">Minecraft Fabric 模组，把 LLM 聊天带入游戏：13 个游戏内工具调用、热编辑提示词模板、多 Provider 健康检查。</p>
+            </div>
+            <a class="work-link" href="https://github.com/riceawa/LumiChat" target="_blank" rel="noopener" data-cursor="link" data-magnetic aria-label="查看 LumiChat">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="work-card" data-cursor="view">
+          <div class="work-cover cover-gen" style="--cg:rgba(34,211,238,.30);--cg-strong:#22d3ee">
+            <div class="cg-grid"></div>
+            <span class="cg-title">FFMPEG<br><em>WEB</em></span>
+            <span class="cg-meta">WEBASSEMBLY / IN-BROWSER<br>MEDIA TOOL / 2025</span>
+            <span class="cg-num">03</span>
+          </div>
+          <div class="work-info">
+            <div class="wi-l">
+              <span class="work-num">P.03 — 2025</span>
+              <h3 class="work-name">FFmpeg Web Tool</h3>
+              <ul class="work-tags"><li>JAVASCRIPT</li><li>WEBASSEMBLY</li><li>FFMPEG</li></ul>
+              <p class="work-desc">把 FFmpeg 编译进浏览器：音视频转码、压缩、裁剪全部本地完成，文件不上传，隐私零风险。</p>
+            </div>
+            <a class="work-link" href="https://github.com/rice-awa" target="_blank" rel="noopener" data-cursor="link" data-magnetic aria-label="查看 FFmpeg Web Tool">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="work-card" data-cursor="view">
+          <div class="work-cover cover-gen" style="--cg:rgba(96,165,250,.30);--cg-strong:#60a5fa">
+            <div class="cg-grid"></div>
+            <span class="cg-title">ESSAY<br><em>GRADER</em></span>
+            <span class="cg-meta">FLASK / LANGCHAIN<br>AI EDUCATION / 2024</span>
+            <span class="cg-num">04</span>
+          </div>
+          <div class="work-info">
+            <div class="wi-l">
+              <span class="work-num">P.04 — 2024</span>
+              <h3 class="work-name">AI Essay Grader</h3>
+              <ul class="work-tags"><li>PYTHON</li><li>FLASK</li><li>LANGCHAIN</li></ul>
+              <p class="work-desc">AI 英语作文自动批改系统：多维度评分、逐句修改建议，把老师从重复劳动里解放出来。</p>
+            </div>
+            <a class="work-link" href="https://github.com/rice-awa" target="_blank" rel="noopener" data-cursor="link" data-magnetic aria-label="查看 AI Essay Grader">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="work-card" data-cursor="view">
+          <div class="work-cover cover-gen" style="--cg:rgba(45,212,191,.30);--cg-strong:#2dd4bf">
+            <div class="cg-grid"></div>
+            <span class="cg-title">RICE-AWA<br><em>.TOP</em></span>
+            <span class="cg-meta">NEXT.JS / TYPESCRIPT<br>PERSONAL SITE / 2024</span>
+            <span class="cg-num">05</span>
+          </div>
+          <div class="work-info">
+            <div class="wi-l">
+              <span class="work-num">P.05 — 2024</span>
+              <h3 class="work-name">rice-awa.top</h3>
+              <ul class="work-tags"><li>NEXT.JS</li><li>TYPESCRIPT</li><li>TAILWIND</li></ul>
+              <p class="work-desc">个人主页与工具集合：深色模式、项目展示、实用小工具，是我试验新技术的自留地。</p>
+            </div>
+            <a class="work-link" href="https://rice-awa.top" target="_blank" rel="noopener" data-cursor="link" data-magnetic aria-label="访问 rice-awa.top">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <div class="work-outro">
+          <h3>还有更多<br>在 GitHub 上 →</h3>
+          <a href="https://github.com/rice-awa" target="_blank" rel="noopener" data-cursor="link">EXPLORE ALL REPOS ↗</a>
+        </div>
+
+      </div>
+      <div class="works-counter"><em id="worksNow">01</em> / <span id="worksTotal">05</span></div>
+      <div class="works-progress"><i id="worksProgressFill"></i></div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="stack section" id="stack">
+    <div class="sec-tag" style="padding:0 clamp(1.2rem,5vw,4.5rem)">( 03 ) — <em>STACK</em> 技术栈</div>
+    <div class="marquee" data-dir="1"><div class="marquee-track" id="mq1"></div></div>
+    <div class="marquee" data-dir="-1"><div class="marquee-track" id="mq2"></div></div>
+    <div class="marquee-foot">
+      <div><strong>前端：</strong>React / Next.js / TypeScript / Tailwind CSS / GSAP —— 追求「好看」与「好用」同时成立。</div>
+      <div><strong>后端 & 工具：</strong>Python / Node.js / Flask / Docker / Linux / Git —— 从原型到部署的全链路。</div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about section" id="about">
+    <div class="sec-tag">( 04 ) — <em>ABOUT</em> 关于我</div>
+    <div class="about-grid">
+      <div class="avatar-wrap">
+        <svg class="avatar-ring" viewBox="0 0 150 150">
+          <defs><path id="ringPath" d="M75,75 m-62,0 a62,62 0 1,1 124,0 a62,62 0 1,1 -124,0"/></defs>
+          <text><textPath href="#ringPath">RICEAWA · CREATIVE DEV · OPEN SOURCE · </textPath></text>
+        </svg>
+        <div class="avatar-frame"><img src="assets/avatar.jpg" alt="riceawa 头像" id="avatarImg"></div>
+        <div class="avatar-caption"><span>@RICE-AWA</span><span>EST. 2023</span></div>
+      </div>
+      <div class="about-body">
+        <h3>你好，我是 <span class="accent">riceawa</span>。<br>一个把好奇心<br>当燃料的开发者。</h3>
+        <p>我专注于<strong>前端开发</strong>与 <strong>AI 应用</strong>，喜欢探索 LLM 的边界，享受把创意变成现实的过程。在 Minecraft 社区里造过模组和 AI Agent，也在 B 站分享技术内容。</p>
+        <p>相信技术的力量，也相信分享的价值 —— <strong>开源、写作、做工具</strong>，是我与世界交换灵感的方式。</p>
+        <div class="stats">
+          <div class="stat"><b><em data-count="6">0</em>+</b><span>PROJECTS 项目</span></div>
+          <div class="stat"><b><em data-count="12">0</em>+</b><span>TECH STACK 技术栈</span></div>
+          <div class="stat"><b><em data-count="3">0</em>+</b><span>YEARS CODING 年限</span></div>
+          <div class="stat"><b>∞</b><span>CURIOSITY 好奇心</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact section" id="contact">
+    <div class="contact-glow"></div>
+    <div class="sec-tag">( 05 ) — <em>CONTACT</em> 联系我</div>
+    <h2 class="contact-title">
+      <span class="row"><span data-ct>LET'S BUILD</span></span>
+      <span class="row"><span data-ct class="accent">SOMETHING →</span></span>
+    </h2>
+    <div class="contact-links">
+      <a class="c-link" href="https://github.com/rice-awa" target="_blank" rel="noopener" data-cursor="link">
+        <span class="cl-name"><span class="idx">01</span>GITHUB</span>
+        <span class="cl-note">代码与开源项目</span>
+        <svg class="cl-arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+      <a class="c-link" href="https://space.bilibili.com/521856101" target="_blank" rel="noopener" data-cursor="link">
+        <span class="cl-name"><span class="idx">02</span>BILIBILI</span>
+        <span class="cl-note">技术分享与视频</span>
+        <svg class="cl-arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+      <a class="c-link" href="https://blog.rice-awa.top" target="_blank" rel="noopener" data-cursor="link">
+        <span class="cl-name"><span class="idx">03</span>BLOG</span>
+        <span class="cl-note">文章与想法</span>
+        <svg class="cl-arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+      <a class="c-link" href="mailto:hi@rice-awa.top" data-cursor="link">
+        <span class="cl-name"><span class="idx">04</span>EMAIL</span>
+        <span class="cl-note">hi@rice-awa.top — 通常 24h 内回复</span>
+        <svg class="cl-arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+    </div>
+    <footer class="footer">
+      <span class="f-top"><i></i>OPEN FOR COLLABORATION</span>
+      <span>© 2026 RICEAWA — DESIGNED &amp; BUILT WITH ♥</span>
+      <a href="#top" class="to-top" data-cursor="link" data-nav>BACK TO TOP ↑</a>
+    </footer>
+  </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+/* ============================================================
+   RICEAWA PORTFOLIO — Luminous Flow
+   GSAP + ScrollTrigger + Lenis + Canvas Ribbons
+============================================================ */
+gsap.registerPlugin(ScrollTrigger);
+const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
+const reduced  = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Lenis 平滑滚动 ---------- */
+let lenis = null;
+if (!reduced) {
+  lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ---------- 工具：逐字分割 ---------- */
+function splitChars(el) {
+  const text = el.textContent;
+  el.setAttribute('aria-label', text);
+  el.textContent = '';
+  const frag = document.createDocumentFragment();
+  for (const ch of text) {
+    const s = document.createElement('span');
+    s.className = 'char';
+    s.textContent = ch === ' ' ? '\u00A0' : ch;
+    frag.appendChild(s);
+  }
+  el.appendChild(frag);
+  return [...el.querySelectorAll('.char')];
+}
+
+/* ---------- 本地时钟 ---------- */
+const clockEl = document.getElementById('clock');
+function tickClock(){ clockEl.textContent = new Date().toLocaleTimeString('zh-CN', { hour12: false }); }
+tickClock(); setInterval(tickClock, 1000);
+
+/* ---------- Canvas 光带引擎 ---------- */
+const canvas = document.getElementById('ribbons');
+const ctx = canvas.getContext('2d');
+const DPR = Math.min(devicePixelRatio || 1, 1.5);
+let CW = 0, CH = 0;
+function sizeCanvas(){
+  const p = canvas.parentElement;
+  CW = p.clientWidth; CH = p.clientHeight;
+  canvas.width = CW * DPR; canvas.height = CH * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+sizeCanvas();
+addEventListener('resize', () => { sizeCanvas(); });
+
+const RIBBONS = [
+  { c: [34,211,238],  y: .30, amp: .11, freq: 1.15, speed: .00016, w: .16, drift: .020, ph: 0.0 },
+  { c: [59,130,246],  y: .48, amp: .15, freq: .85,  speed: .00011, w: .22, drift: .032, ph: 2.1 },
+  { c: [45,212,191],  y: .66, amp: .10, freq: 1.35, speed: .00021, w: .13, drift: .016, ph: 4.2 },
+  { c: [14,165,233],  y: .84, amp: .13, freq: .70,  speed: .00009, w: .18, drift: .026, ph: 5.6 },
+];
+let mouse = { x: .5, y: .5 }, sm = { x: .5, y: .5 };
+if (!isTouch) addEventListener('mousemove', e => {
+  mouse.x = e.clientX / innerWidth;
+  mouse.y = e.clientY / innerHeight;
+});
+
+function drawRibbons(t){
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.globalCompositeOperation = 'lighter';
+  sm.x += (mouse.x - sm.x) * .045;
+  sm.y += (mouse.y - sm.y) * .045;
+
+  for (const r of RIBBONS) {
+    const baseY = r.y * CH + (sm.y - .5) * CH * r.drift * 3;
+    const sway  = (sm.x - .5) * CW * r.drift * 4;
+    ctx.beginPath();
+    const STEPS = 48;
+    for (let i = 0; i <= STEPS; i++) {
+      const x = (i / STEPS) * (CW + 200) - 100;
+      const n = i / STEPS;
+      const y = baseY
+        + Math.sin(n * Math.PI * r.freq * 2 + t * r.speed + r.ph) * r.amp * CH
+        + Math.sin(n * Math.PI * r.freq * 4.7 + t * r.speed * 1.6 + r.ph * 2) * r.amp * CH * .35;
+      i === 0 ? ctx.moveTo(x + sway, y) : ctx.lineTo(x + sway, y);
+    }
+    const thick = r.w * CH * (1 + .12 * Math.sin(t * r.speed * 2 + r.ph));
+    const g = ctx.createLinearGradient(0, baseY - thick, 0, baseY + thick);
+    const [R, G, B] = r.c;
+    g.addColorStop(0,   `rgba(${R},${G},${B},0)`);
+    g.addColorStop(.5,  `rgba(${R},${G},${B},.55)`);
+    g.addColorStop(1,   `rgba(${R},${G},${B},0)`);
+    ctx.strokeStyle = g;
+    ctx.lineWidth = thick;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+if (!reduced) {
+  let heroVisible = true;
+  new IntersectionObserver(([e]) => heroVisible = e.isIntersecting).observe(document.getElementById('hero'));
+  (function loop(t){ if (heroVisible) drawRibbons(t || 0); requestAnimationFrame(loop); })();
+} else { drawRibbons(0); }
+
+/* Hero 视差：背景与内容随鼠标反向漂移 */
+const heroBg = document.getElementById('heroBg');
+const heroInner = document.getElementById('heroInner');
+if (!isTouch && !reduced) {
+  const bx = gsap.quickTo(heroBg, 'x', { duration: .9, ease: 'power3' });
+  const by = gsap.quickTo(heroBg, 'y', { duration: .9, ease: 'power3' });
+  const cx = gsap.quickTo(heroInner, 'x', { duration: .9, ease: 'power3' });
+  const cy = gsap.quickTo(heroInner, 'y', { duration: .9, ease: 'power3' });
+  addEventListener('mousemove', e => {
+    const nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
+    bx(nx * 34); by(ny * 24); cx(nx * -18); cy(ny * -12);
+  });
+}
+
+/* ---------- 自定义光标 ---------- */
+if (!isTouch) {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  const label = document.getElementById('cursorLabel');
+  gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
+  const dx = gsap.quickTo(dot, 'x', { duration: .12, ease: 'power2' });
+  const dy = gsap.quickTo(dot, 'y', { duration: .12, ease: 'power2' });
+  const rx = gsap.quickTo(ring, 'x', { duration: .45, ease: 'power3' });
+  const ry = gsap.quickTo(ring, 'y', { duration: .45, ease: 'power3' });
+  addEventListener('mousemove', e => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
+  document.addEventListener('mouseover', e => {
+    const view = e.target.closest('[data-cursor="view"]');
+    const link = e.target.closest('[data-cursor="link"], a, button');
+    ring.classList.toggle('is-view', !!view);
+    ring.classList.toggle('is-link', !view && !!link);
+    if (view) label.textContent = view.dataset.cursorLabel || 'VIEW';
+  });
+}
+
+/* ---------- 磁性元素 ---------- */
+if (!isTouch) document.querySelectorAll('[data-magnetic]').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    gsap.to(el, { x: (e.clientX - r.left - r.width/2) * .4, y: (e.clientY - r.top - r.height/2) * .4, duration: .4, ease: 'power3' });
+  });
+  el.addEventListener('mouseleave', () => gsap.to(el, { x: 0, y: 0, duration: .7, ease: 'elastic.out(1,.4)' }));
+});
+
+/* ---------- Loader ---------- */
+const loader = document.getElementById('loader');
+const pctEl = document.getElementById('loaderPct');
+const loaderName = document.getElementById('loaderName');
+loaderName.textContent = 'RICEAWA';
+const nameChars = splitChars(loaderName);
+function revealSite(){
+  const tl = gsap.timeline({ defaults: { ease: 'expo.inOut' } });
+  tl.to(loader, { yPercent: -100, duration: .9, onComplete: () => loader.remove() })
+    .add(heroIntro, '-=.25');
+}
+function heroIntro(){
+  const chars = document.querySelectorAll('#heroTitle .char');
+  const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  tl.to(chars, { yPercent: 0, duration: 1.3, stagger: .05 }, 0)
+    .to('#heroStroke', { yPercent: 0, duration: 1.1 }, .35)
+    .to('#heroCn', { opacity: 1, y: 0, duration: .9, ease: 'power3.out' }, .7)
+    .to('#nav', { opacity: 1, y: 0, duration: .8, ease: 'power3.out' }, .8)
+    .to('#heroFoot', { opacity: 1, duration: .9 }, 1);
+}
+/* Hero 标题分割 + 初始隐藏 */
+const heroChars = splitChars(document.getElementById('heroTitle'));
+gsap.set(heroChars, { yPercent: 115 });
+gsap.set('#heroStroke', { yPercent: 115 });
+if (reduced) {
+  pctEl.textContent = '100';
+  loader.remove();
+  gsap.set([heroChars, '#heroStroke'], { yPercent: 0 });
+  gsap.set(['#heroCn', '#heroFoot', '#nav'], { opacity: 1, y: 0 });
+} else {
+  gsap.set(nameChars, { yPercent: 120 });
+  gsap.to(nameChars, { yPercent: 0, duration: .9, stagger: .045, ease: 'expo.out', delay: .15 });
+  const prog = { v: 0 };
+  gsap.to(prog, {
+    v: 100, duration: 1.9, ease: 'power2.inOut',
+    onUpdate(){ pctEl.textContent = String(Math.round(prog.v)).padStart(3, '0'); gsap.set('#loaderBarFill', { scaleX: prog.v / 100 }); },
+    onComplete: revealSite
+  });
+}
+
+/* ---------- 全局滚动进度 & 导航状态 ---------- */
+const nav = document.getElementById('nav');
+ScrollTrigger.create({
+  start: 0, end: 'max',
+  onUpdate(self){
+    gsap.set('#progressBar', { scaleX: self.progress });
+    nav.classList.toggle('is-scrolled', self.scroll() > 60);
+  }
+});
+
+/* ---------- 锚点平滑跳转 ---------- */
+document.querySelectorAll('[data-nav]').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();
+  const target = a.getAttribute('href');
+  if (lenis) lenis.scrollTo(target, { offset: 0, duration: 1.4 });
+  else document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
+}));
+document.querySelector('.nav-logo').addEventListener('click', e => {
+  e.preventDefault();
+  lenis ? lenis.scrollTo(0, { duration: 1.4 }) : scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ---------- Hero 出场视差（滚动淡出） ---------- */
+gsap.to('#heroInner', {
+  yPercent: -18, opacity: .25, ease: 'none',
+  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+gsap.to('.hero-bg', {
+  yPercent: 12, ease: 'none',
+  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+
+/* ---------- Manifesto 逐行 reveal ---------- */
+gsap.utils.toArray('.m-line').forEach(line => {
+  const inner = line.querySelector('.m-line-inner');
+  gsap.fromTo(inner,
+    { yPercent: 105 },
+    { yPercent: 0, ease: 'power3.out', duration: 1,
+      scrollTrigger: { trigger: line, start: 'top 88%', toggleActions: 'play none none reverse' } });
+});
+gsap.from('.m-foot', {
+  opacity: 0, y: 30, duration: 1, ease: 'power3.out',
+  scrollTrigger: { trigger: '.m-foot', start: 'top 88%', toggleActions: 'play none none reverse' }
+});
+
+/* ---------- Works：横向滚动 ---------- */
+const track = document.getElementById('worksTrack');
+const cards = gsap.utils.toArray('.work-card');
+document.getElementById('worksTotal').textContent = String(cards.length).padStart(2, '0');
+
+function setupWorks(){
+  const getDist = () => track.scrollWidth - innerWidth;
+  const scrollTween = gsap.to(track, {
+    x: () => -getDist(),
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#works',
+      start: 'top top',
+      end: () => '+=' + getDist(),
+      pin: true,
+      scrub: 1,
+      invalidateOnRefresh: true,
+      anticipatePin: 1,
+      onUpdate(self){
+        gsap.set('#worksProgressFill', { scaleX: self.progress });
+        const idx = Math.min(cards.length, Math.max(1, Math.round(self.progress * (cards.length + 1.6) - .4)));
+        document.getElementById('worksNow').textContent = String(idx).padStart(2, '0');
+      }
+    }
+  });
+  /* 卡片内图片视差 */
+  gsap.utils.toArray('.work-cover img').forEach(img => {
+    gsap.fromTo(img, { x: 0 }, {
+      x: () => -(img.clientWidth * .10),
+      ease: 'none',
+      scrollTrigger: { trigger: img.closest('.work-card'), containerAnimation: scrollTween, start: 'left right', end: 'right left', scrub: true }
+    });
+  });
+  /* 卡片入场微倾斜 */
+  cards.forEach((card, i) => {
+    gsap.fromTo(card, { rotate: i % 2 ? .8 : -.8 }, {
+      rotate: 0, ease: 'none',
+      scrollTrigger: { trigger: card, containerAnimation: scrollTween, start: 'left right', end: 'left 30%', scrub: true }
+    });
+  });
+}
+setupWorks();
+
+/* ---------- Stack marquee ---------- */
+const MQ = {
+  mq1: ['REACT','NEXT.JS','TYPESCRIPT','TAILWIND CSS','GSAP','MOTION','CANVAS'],
+  mq2: ['PYTHON','NODE.JS','FLASK','DOCKER','LINUX','GIT','LLM / AGENT'],
+};
+function buildMarquee(id, items){
+  const track = document.getElementById(id);
+  let html = '';
+  for (let r = 0; r < 2; r++) {
+    items.forEach((t, i) => {
+      html += `<span class="marquee-item"><span class="${i % 2 ? 'hollow' : ''}">${t}</span><i class="dot"></i></span>`;
+    });
+  }
+  track.innerHTML = html;
+}
+buildMarquee('mq1', MQ.mq1);
+buildMarquee('mq2', MQ.mq2);
+function runMarquee(id, dir){
+  const t = document.getElementById(id);
+  const w = t.scrollWidth / 2;
+  return gsap.fromTo(t, { x: dir === 1 ? 0 : -w }, {
+    x: dir === 1 ? -w : 0, duration: 26, ease: 'none', repeat: -1
+  });
+}
+const mqTweens = [runMarquee('mq1', 1), runMarquee('mq2', -1)];
+/* marquee 随滚动速度加捻 */
+if (!reduced) {
+  let mqIdle;
+  ScrollTrigger.create({
+    trigger: '.stack', start: 'top bottom', end: 'bottom top',
+    onUpdate(self){
+      const v = 1 + Math.min(Math.abs(self.getVelocity()) / 2500, 1.6);
+      mqTweens.forEach(t => gsap.to(t, { timeScale: v, duration: .3, overwrite: true }));
+      clearTimeout(mqIdle);
+      mqIdle = setTimeout(() => mqTweens.forEach(t => gsap.to(t, { timeScale: 1, duration: .6, overwrite: true })), 160);
+    }
+  });
+}
+
+/* ---------- About reveal ---------- */
+gsap.from('.avatar-frame', {
+  clipPath: 'inset(100% 0 0 0)', duration: 1.2, ease: 'expo.out',
+  scrollTrigger: { trigger: '.avatar-wrap', start: 'top 82%', toggleActions: 'play none none reverse' }
+});
+gsap.fromTo('#avatarImg', { scale: 1.3 }, {
+  scale: 1.12, ease: 'none',
+  scrollTrigger: { trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: true }
+});
+gsap.from(['.about-body h3', '.about-body p'], {
+  opacity: 0, y: 40, duration: 1, stagger: .12, ease: 'power3.out',
+  scrollTrigger: { trigger: '.about-body', start: 'top 82%', toggleActions: 'play none none reverse' }
+});
+gsap.from('.stat', {
+  opacity: 0, y: 26, duration: .8, stagger: .08, ease: 'power3.out',
+  scrollTrigger: { trigger: '.stats', start: 'top 88%', toggleActions: 'play none none reverse' }
+});
+/* 数字计数 */
+gsap.utils.toArray('[data-count]').forEach(el => {
+  const target = +el.dataset.count;
+  ScrollTrigger.create({
+    trigger: el, start: 'top 90%', once: true,
+    onEnter: () => gsap.fromTo(el, { textContent: 0 }, {
+      textContent: target, duration: 1.6, ease: 'power2.out',
+      snap: { textContent: 1 }
+    })
+  });
+});
+
+/* ---------- Contact ---------- */
+gsap.utils.toArray('[data-ct]').forEach((el, i) => {
+  gsap.fromTo(el, { yPercent: 110 }, {
+    yPercent: 0, duration: 1.1, ease: 'expo.out', delay: i * .1,
+    scrollTrigger: { trigger: '.contact-title', start: 'top 85%', toggleActions: 'play none none reverse' }
+  });
+});
+gsap.from('.c-link', {
+  opacity: 0, y: 34, duration: .9, stagger: .09, ease: 'power3.out',
+  scrollTrigger: { trigger: '.contact-links', start: 'top 88%', toggleActions: 'play none none reverse' }
+});
+gsap.from('.footer', {
+  opacity: 0, duration: 1,
+  scrollTrigger: { trigger: '.footer', start: 'top 96%', toggleActions: 'play none none reverse' }
+});
+
+/* ---------- 章节 tag 统一 reveal ---------- */
+gsap.utils.toArray('.sec-tag').forEach(tag => {
+  gsap.from(tag, {
+    opacity: 0, x: -30, duration: .9, ease: 'power3.out',
+    scrollTrigger: { trigger: tag, start: 'top 90%', toggleActions: 'play none none reverse' }
+  });
+});
+
+/* 刷新校正（图片加载后重算尺寸） */
+addEventListener('load', () => ScrollTrigger.refresh());
+</script>
+</body>
+</html>
