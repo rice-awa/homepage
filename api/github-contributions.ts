@@ -7,6 +7,13 @@ import {
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const USERNAME = 'rice-awa';
 const CACHE_CONTROL = 'public, s-maxage=3600, stale-while-revalidate=86400';
+const CONTRIBUTION_LEVELS = new Set([
+  'NONE',
+  'FIRST_QUARTILE',
+  'SECOND_QUARTILE',
+  'THIRD_QUARTILE',
+  'FOURTH_QUARTILE',
+]);
 
 const query = `
   query ContributionCalendar($login: String!, $from: DateTime!, $to: DateTime!) {
@@ -52,13 +59,18 @@ function isContributionDay(value: unknown): value is Record<string, unknown> {
     && typeof value.date === 'string'
     && typeof value.color === 'string'
     && typeof value.contributionLevel === 'string'
-    && typeof value.contributionCount === 'number'
-    && typeof value.weekday === 'number';
+    && CONTRIBUTION_LEVELS.has(value.contributionLevel)
+    && Number.isInteger(value.contributionCount)
+    && value.contributionCount >= 0
+    && Number.isInteger(value.weekday)
+    && value.weekday >= 0
+    && value.weekday <= 6;
 }
 
 function isContributionCalendar(value: unknown): value is Record<string, unknown> {
   return isRecord(value)
-    && typeof value.totalContributions === 'number'
+    && Number.isInteger(value.totalContributions)
+    && value.totalContributions >= 0
     && Array.isArray(value.weeks)
     && value.weeks.every((week) => (
       isRecord(week)
