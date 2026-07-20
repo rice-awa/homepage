@@ -12,6 +12,7 @@ import { type ContributionDay, useContributions } from '../hooks/useContribution
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 const WEEKDAYS = ['', 'MON', '', 'WED', '', 'FRI', ''];
+const TOOLTIP_LEAVE_DELAY = 400;
 
 function yearsFor(now = new Date()) {
   const currentYear = now.getUTCFullYear();
@@ -63,6 +64,13 @@ export default function Contributions() {
     () => new Map(weeks.flatMap((week) => week.days).map((day) => [day.date, day])),
     [weeks],
   );
+  const activeDayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearActiveDayTimer = useCallback(() => {
+    if (!activeDayTimerRef.current) return;
+    clearTimeout(activeDayTimerRef.current);
+    activeDayTimerRef.current = null;
+  }, []);
 
   const updateActiveDay = useCallback((event: PointerEvent) => {
     const grid = gridRef.current;
@@ -71,15 +79,29 @@ export default function Contributions() {
       : null;
     const day = target && grid?.contains(target) ? daysByDate.get(target.dataset.date || '') ?? null : null;
 
-    setActiveDay((current) => current?.date === day?.date ? current : day);
-  }, [daysByDate]);
+    if (day) {
+      clearActiveDayTimer();
+      setActiveDay((current) => current?.date === day.date ? current : day);
+      return;
+    }
+
+    if (activeDayTimerRef.current) return;
+    activeDayTimerRef.current = setTimeout(() => {
+      setActiveDay(null);
+      activeDayTimerRef.current = null;
+    }, TOOLTIP_LEAVE_DELAY);
+  }, [clearActiveDayTimer, daysByDate]);
 
   useEffect(() => {
     window.addEventListener('pointermove', updateActiveDay, { passive: true });
-    return () => window.removeEventListener('pointermove', updateActiveDay);
-  }, [updateActiveDay]);
+    return () => {
+      window.removeEventListener('pointermove', updateActiveDay);
+      clearActiveDayTimer();
+    };
+  }, [clearActiveDayTimer, updateActiveDay]);
 
   const selectYear = (year: number) => {
+    clearActiveDayTimer();
     setActiveDay(null);
     setSelectedYear(year);
   };
@@ -153,8 +175,14 @@ export default function Contributions() {
                         className={`activity-day level-${day.level}`}
                         data-date={day.date}
                         key={day.date}
-                        onBlur={() => setActiveDay(null)}
-                        onFocus={() => setActiveDay(day)}
+                        onBlur={() => {
+                          clearActiveDayTimer();
+                          setActiveDay(null);
+                        }}
+                        onFocus={() => {
+                          clearActiveDayTimer();
+                          setActiveDay(day);
+                        }}
                         style={{ '--activity-row': day.weekday + 1 } as CSSProperties}
                         type="button"
                       />
@@ -163,7 +191,7 @@ export default function Contributions() {
                 </div>
               </div>
               <div className="activity-tooltip-slot">
-                {activeDay && <p className="activity-tooltip" role="status">{dayLabel(activeDay)}</p>}
+                {activeDay && <p className="activity-tooltip" key={activeDay.date} role="status">{dayLabel(activeDay)}</p>}
               </div>
             </div>
           )}

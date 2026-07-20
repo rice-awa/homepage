@@ -1199,12 +1199,25 @@ body::after {
   width: max-content;
   max-width: 100%;
   margin: 0;
+  animation: activity-tooltip-enter .24s var(--ease) both;
   font: 10px/1.5 var(--font-m);
   letter-spacing: .08em;
   color: var(--ink);
   background: var(--panel);
   border: 1px solid var(--line);
   padding: .55rem .7rem;
+}
+
+@keyframes activity-tooltip-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .activity-tooltip-slot {
@@ -1363,6 +1376,10 @@ body::after {
   }
 
   .activity-calendar-enter {
+    animation: none;
+  }
+
+  .activity-tooltip {
     animation: none;
   }
 
