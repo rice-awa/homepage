@@ -17,36 +17,45 @@ interface WorkItemProps {
 
 function WorkCard({ item }: WorkItemProps) {
   return (
-    <article className="work-card" data-cursor="view">
-      {item.image ? (
-        <div className="work-cover">
-          <img src={item.image} alt={`${item.name} 项目封面`} />
-          <div className="veil" />
-        </div>
-      ) : (
-        <div
-          className="work-cover cover-gen"
-          style={
-            {
-              '--cg': item.coverGen!.cg,
-              '--cg-strong': item.coverGen!.cgStrong,
-            } as React.CSSProperties
-          }
-        >
-          <div className="cg-grid" />
-          <span className="cg-title">
-            {item.coverGen!.line1}
-            <br />
-            <em>{item.coverGen!.line2}</em>
-          </span>
-          <span className="cg-meta">
-            {item.coverGen!.meta[0]}
-            <br />
-            {item.coverGen!.meta[1]}
-          </span>
-          <span className="cg-num">{item.num}</span>
-        </div>
-      )}
+    <article className="work-card">
+      <a
+        className="work-cover-link"
+        href={item.link}
+        target="_blank"
+        rel="noopener"
+        data-cursor="view"
+        aria-label={`查看 ${item.name} 项目`}
+      >
+        {item.image ? (
+          <div className="work-cover">
+            <img src={item.image} alt={`${item.name} 项目封面`} />
+            <div className="veil" />
+          </div>
+        ) : (
+          <div
+            className="work-cover cover-gen"
+            style={
+              {
+                '--cg': item.coverGen!.cg,
+                '--cg-strong': item.coverGen!.cgStrong,
+              } as React.CSSProperties
+            }
+          >
+            <div className="cg-grid" />
+            <span className="cg-title">
+              {item.coverGen!.line1}
+              <br />
+              <em>{item.coverGen!.line2}</em>
+            </span>
+            <span className="cg-meta">
+              {item.coverGen!.meta[0]}
+              <br />
+              {item.coverGen!.meta[1]}
+            </span>
+            <span className="cg-num">{item.num}</span>
+          </div>
+        )}
+      </a>
       <div className="work-info">
         <div className="wi-l">
           <span className="work-num">P.{item.num} — {item.year}</span>

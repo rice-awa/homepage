@@ -704,6 +704,10 @@ body::after {
   width: clamp(300px, 58vw, 780px);
 }
 
+.work-cover-link {
+  display: block;
+}
+
 .work-cover {
   position: relative;
   aspect-ratio: 16/10;
