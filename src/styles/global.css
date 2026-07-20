@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme="dark"] {
   --bg: #04070e;
   --bg2: #070c16;
   --panel: #0a101d;
@@ -8,9 +9,45 @@
   --blue: #60a5fa;
   --teal: #2dd4bf;
   --line: rgba(148, 180, 220, .14);
+  --on-accent: #04070e;
+  --on-accent-dim: rgba(4, 7, 14, .6);
+  --scrim: rgba(4, 7, 14, .55);
+  --scrim-soft: rgba(4, 7, 14, .45);
+  --nav-glass: rgba(4, 7, 14, .6);
+  --drawer-bg: rgba(4, 7, 14, .94);
+  --stroke-ghost: rgba(234, 242, 251, .5);
+  --stroke-ghost-strong: rgba(234, 242, 251, .55);
+  --noise-opacity: .055;
+  --activity-empty: rgba(148, 180, 220, .1);
+  --activity-empty-border: rgba(148, 180, 220, .08);
   --font-d: 'Space Grotesk', 'Noto Sans SC', sans-serif;
   --font-m: 'JetBrains Mono', monospace;
   --ease: cubic-bezier(.65, .05, 0, 1);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: #f4f7fb;
+  --bg2: #e8eef6;
+  --panel: #ffffff;
+  --ink: #0b1220;
+  --dim: #5b6b82;
+  --cyan: #0891b2;
+  --blue: #3b82f6;
+  --teal: #0d9488;
+  --line: rgba(15, 35, 60, .10);
+  --on-accent: #04070e;
+  --on-accent-dim: rgba(4, 7, 14, .62);
+  --scrim: rgba(244, 247, 251, .78);
+  --scrim-soft: rgba(244, 247, 251, .62);
+  --nav-glass: rgba(244, 247, 251, .78);
+  --drawer-bg: rgba(244, 247, 251, .96);
+  --stroke-ghost: rgba(11, 18, 32, .32);
+  --stroke-ghost-strong: rgba(11, 18, 32, .38);
+  --noise-opacity: .032;
+  --activity-empty: rgba(15, 35, 60, .06);
+  --activity-empty-border: rgba(15, 35, 60, .08);
+  color-scheme: light;
 }
 
 * {
@@ -42,6 +79,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-d);
+  transition: background-color .3s var(--ease), color .3s var(--ease);
   width: 100%;
   overflow-x: hidden;
   overflow-x: clip;
@@ -52,7 +90,7 @@ body {
 
 ::selection {
   background: var(--cyan);
-  color: #04070e;
+  color: var(--on-accent);
 }
 
 a {
@@ -77,7 +115,7 @@ body::after {
   inset: 0;
   z-index: 2000;
   pointer-events: none;
-  opacity: .055;
+  opacity: var(--noise-opacity);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -112,7 +150,7 @@ body::after {
   font-family: var(--font-m);
   font-size: 10px;
   letter-spacing: .15em;
-  color: #04070e;
+  color: var(--on-accent);
   opacity: 0;
   transition: opacity .25s;
   user-select: none;
@@ -238,7 +276,7 @@ body::after {
 }
 
 .nav.is-scrolled {
-  background: rgba(4, 7, 14, .6);
+  background: var(--nav-glass);
   backdrop-filter: blur(14px);
   padding-top: .9rem;
   padding-bottom: .9rem;
@@ -322,9 +360,86 @@ body::after {
   font-style: normal;
 }
 
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  flex-shrink: 0;
+}
+
+.theme-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color .3s var(--ease), background .3s var(--ease), color .3s var(--ease);
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  outline: none;
+}
+
+.theme-toggle:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cyan) 35%, transparent);
+}
+
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  position: absolute;
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+  opacity: 0;
+  transform: scale(.6) rotate(-30deg);
+}
+
+[data-theme="light"] .theme-toggle .icon-sun {
+  opacity: 0;
+  transform: scale(.6) rotate(30deg);
+}
+
+[data-theme="light"] .theme-toggle .icon-moon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;
+  }
+
+  .nav-time {
+    display: none;
+  }
+
+  .nav-end {
+    gap: .35rem;
   }
 }
 
@@ -427,7 +542,7 @@ body::after {
   letter-spacing: -.03em;
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(234, 242, 251, .5);
+  -webkit-text-stroke: 1px var(--stroke-ghost);
   overflow: hidden;
 }
 
@@ -657,7 +772,7 @@ body::after {
 
 .work-intro h2 .outline {
   color: transparent;
-  -webkit-text-stroke: 1px rgba(234, 242, 251, .55);
+  -webkit-text-stroke: 1px var(--stroke-ghost-strong);
 }
 
 .work-intro p {
@@ -732,7 +847,7 @@ body::after {
 .work-cover .veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(4, 7, 14, .55));
+  background: linear-gradient(180deg, transparent 55%, var(--scrim));
   pointer-events: none;
 }
 
@@ -871,7 +986,7 @@ body::after {
 }
 
 .work-card:hover .work-link svg {
-  stroke: #04070e;
+  stroke: var(--on-accent);
   transform: rotate(45deg);
 }
 
@@ -1157,9 +1272,9 @@ body::after {
 .activity-skeleton i {
   width: var(--activity-cell);
   height: var(--activity-cell);
-  border: 1px solid rgba(148, 180, 220, .08);
+  border: 1px solid var(--activity-empty-border);
   border-radius: 2px;
-  background: rgba(148, 180, 220, .1);
+  background: var(--activity-empty);
 }
 
 .activity-day {
@@ -1445,7 +1560,7 @@ body::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 60%, rgba(4, 7, 14, .45));
+  background: linear-gradient(180deg, transparent 60%, var(--scrim-soft));
   pointer-events: none;
 }
 
@@ -1667,15 +1782,15 @@ body::after {
 
 .c-link:hover .cl-name,
 .c-link:hover .cl-note {
-  color: #04070e;
+  color: var(--on-accent);
 }
 
 .c-link:hover .cl-name .idx {
-  color: rgba(4, 7, 14, .6);
+  color: var(--on-accent-dim);
 }
 
 .c-link:hover .cl-arrow {
-  stroke: #04070e;
+  stroke: var(--on-accent);
   transform: translate(4px, -4px);
 }
 
@@ -1779,7 +1894,7 @@ body::after {
   flex-direction: column;
   justify-content: center;
   padding: 0 clamp(1.6rem, 8vw, 3rem);
-  background: rgba(4, 7, 14, .94);
+  background: var(--drawer-bg);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   visibility: hidden;

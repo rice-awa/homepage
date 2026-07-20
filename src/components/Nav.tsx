@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getLenis } from '../hooks/useLenis';
 import { NAV } from '../constants/content';
+import { useTheme } from '../hooks/useTheme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,6 +15,7 @@ export default function Nav({ clock }: NavProps) {
   const navRef = useRef<HTMLElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const pendingHref = useRef<string | null>(null);
   const firstRun = useRef(true);
 
@@ -140,20 +142,38 @@ export default function Nav({ clock }: NavProps) {
             </a>
           ))}
         </div>
-        <div className="nav-time">
-          LOCAL — <em id="clock">{clock}</em>
+        <div className="nav-end">
+          <div className="nav-time">
+            LOCAL — <em id="clock">{clock}</em>
+          </div>
+          <button
+            type="button"
+            className="theme-toggle"
+            data-cursor="link"
+            aria-label={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+            aria-pressed={theme === 'light'}
+            onClick={toggleTheme}
+          >
+            <svg className="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+            </svg>
+            <svg className="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className={`nav-burger${menuOpen ? ' is-open' : ''}`}
+            aria-expanded={menuOpen}
+            aria-controls="nav-drawer"
+            aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span />
+            <span />
+          </button>
         </div>
-        <button
-          type="button"
-          className={`nav-burger${menuOpen ? ' is-open' : ''}`}
-          aria-expanded={menuOpen}
-          aria-controls="nav-drawer"
-          aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <span />
-          <span />
-        </button>
       </nav>
 
       <div ref={drawerRef} className="nav-drawer" id="nav-drawer" aria-hidden={!menuOpen}>
