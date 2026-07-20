@@ -2,13 +2,22 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { createYearRequestCache } from '../src/hooks/contributionRequestCache.js';
-import {
+import * as githubContributions from '../lib/githubContributions.js';
+
+const {
   createContributionPayload,
   getContributionRange,
   parseContributionYear,
-} from '../lib/githubContributions.js';
+} = githubContributions;
 
 const NOW = new Date('2026-07-20T12:00:00.000Z');
+
+test('reads the year from a relative Vercel request URL', () => {
+  assert.equal(
+    githubContributions.getContributionRequestYear('/api/github-contributions?year=2023'),
+    '2023',
+  );
+});
 
 test('uses the current year when no year is provided', () => {
   assert.equal(parseContributionYear(null, NOW), 2026);

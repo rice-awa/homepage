@@ -1,6 +1,7 @@
 import {
   createContributionPayload,
   getContributionRange,
+  getContributionRequestYear,
   parseContributionYear,
 } from '../lib/githubContributions.js';
 
@@ -90,7 +91,7 @@ export default async function handler(request: Request) {
   }
 
   const now = new Date();
-  const requestedYear = new URL(request.url).searchParams.get('year');
+  const requestedYear = getContributionRequestYear(request.url);
   let year: number;
   try {
     year = parseContributionYear(requestedYear, now);
