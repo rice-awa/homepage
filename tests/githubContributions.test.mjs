@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { createYearRequestCache } from '../src/hooks/contributionRequestCache.js';
@@ -11,6 +12,16 @@ const {
 } = githubContributions;
 
 const NOW = new Date('2026-07-20T12:00:00.000Z');
+
+test('exports the contribution API as a Vercel Web GET handler', async () => {
+  const source = await readFile(
+    new URL('../api/github-contributions.ts', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(source, /export\s+async\s+function\s+GET\s*\(/);
+  assert.doesNotMatch(source, /export\s+default/);
+});
 
 test('reads the year from a relative Vercel request URL', () => {
   assert.equal(

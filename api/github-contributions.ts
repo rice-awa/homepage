@@ -80,7 +80,7 @@ function isContributionCalendar(value: unknown): value is Record<string, unknown
     ));
 }
 
-export default async function handler(request: Request) {
+export async function GET(request: Request) {
   if (request.method !== 'GET') {
     return error('METHOD_NOT_ALLOWED', 'Only GET requests are supported.', 405, { Allow: 'GET' });
   }
