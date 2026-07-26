@@ -429,6 +429,47 @@ body::after {
   transform: scale(1) rotate(0deg);
 }
 
+/* ---------- 主题圆形扩散切换（View Transitions API） ---------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* 新主题从点击圆心扩散覆盖旧主题 */
+html.theme-transitioning::view-transition-new(root) {
+  animation: theme-circle-in .6s var(--ease) both;
+}
+
+@keyframes theme-circle-in {
+  from {
+    clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}
+
+/* 扩散期间关闭颜色过渡，避免与快照动画打架 */
+html.theme-transitioning,
+html.theme-transitioning body {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transitioning::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;

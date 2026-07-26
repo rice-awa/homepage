@@ -15,7 +15,7 @@ interface LocalResponse {
 }
 
 interface ContributionModule {
-  default(request: Request): Promise<Response>;
+  GET(request: Request): Promise<Response>;
 }
 
 function localContributionApi(): Plugin {
@@ -29,7 +29,8 @@ function localContributionApi(): Plugin {
           const host = typeof incoming.headers.host === 'string' ? incoming.headers.host : 'localhost';
           const requestUrl = new URL(incoming.originalUrl ?? incoming.url ?? '/', `http://${host}`);
           const module = await server.ssrLoadModule('/api/github-contributions.ts') as ContributionModule;
-          const response = await module.default(new Request(requestUrl, { method: incoming.method }));
+          // Vercel Web 风格命名导出 GET（非 default）
+          const response = await module.GET(new Request(requestUrl, { method: incoming.method }));
 
           outgoing.statusCode = response.status;
           response.headers.forEach((value, key) => outgoing.setHeader(key, value));

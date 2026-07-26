@@ -152,7 +152,13 @@ export default function Nav({ clock }: NavProps) {
             data-cursor="link"
             aria-label={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
             aria-pressed={theme === 'light'}
-            onClick={toggleTheme}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              toggleTheme({
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+              });
+            }}
           >
             <svg className="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="4" />
