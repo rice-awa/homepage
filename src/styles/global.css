@@ -1363,25 +1363,23 @@ html.theme-transitioning body {
   width: max-content;
   max-width: 100%;
   margin: 0;
-  animation: activity-tooltip-enter .24s var(--ease) both;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+
   font: 10px/1.5 var(--font-m);
   letter-spacing: .08em;
   color: var(--ink);
   background: var(--panel);
   border: 1px solid var(--line);
   padding: .55rem .7rem;
-}
-
-@keyframes activity-tooltip-enter {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .activity-tooltip-slot {
@@ -2045,7 +2043,11 @@ html.theme-transitioning body {
     transition: none;
   }
 
-  .activity-tooltip,
+  .activity-tooltip {
+    transition: opacity 150ms ease;
+    transform: none;
+  }
+
   .activity-skeleton i {
     animation: none;
   }

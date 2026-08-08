@@ -198,7 +198,7 @@ export default function Contributions() {
                 </div>
               </div>
               <div className="activity-tooltip-slot">
-                {activeDay && <p className="activity-tooltip" key={activeDay.date} role="status">{dayLabel(activeDay)}</p>}
+                {activeDay && <p className="activity-tooltip" role="status">{dayLabel(activeDay)}</p>}
               </div>
             </div>
           )}
