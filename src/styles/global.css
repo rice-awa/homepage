@@ -410,7 +410,11 @@ body::after {
   color: var(--ink);
   padding: 0;
   flex-shrink: 0;
-  transition: border-color .3s var(--ease), background .3s var(--ease), color .3s var(--ease);
+  transition:
+    transform 160ms var(--ease-out),
+    border-color .3s var(--ease),
+    background .3s var(--ease),
+    color .3s var(--ease);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1053,7 +1057,10 @@ html.theme-transitioning body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .4s, border-color .4s;
+  transition:
+    transform 160ms var(--ease-out),
+    background .4s,
+    border-color .4s;
   will-change: transform;
 }
 
@@ -1504,7 +1511,10 @@ html.theme-transitioning body {
 .activity-years button {
   flex: 1;
   position: relative;
-  transition: color .2s, background .2s;
+  transition:
+    transform 160ms var(--ease-out),
+    color .2s,
+    background .2s;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1930,6 +1940,7 @@ html.theme-transitioning body {
   border: 0;
   padding: 0;
   flex-shrink: 0;
+  transition: transform 160ms var(--ease-out);
 }
 
 .nav-burger span {
@@ -1956,6 +1967,13 @@ html.theme-transitioning body {
 
 .nav-burger.is-open span:last-child {
   transform: translateY(-50%) rotate(-45deg);
+}
+
+.theme-toggle:active,
+.nav-burger:active,
+.work-link:active,
+.activity-years button:active {
+  transform: scale(.97);
 }
 
 /* ---------- 全屏抽屉菜单（桌面端不渲染） ---------- */
@@ -2105,6 +2123,21 @@ html.theme-transitioning body {
 
   .activity-skeleton {
     animation: none;
+  }
+
+  .theme-toggle,
+  .nav-burger,
+  .work-link,
+  .activity-years button {
+    transition: opacity 160ms ease;
+  }
+
+  .theme-toggle:active,
+  .nav-burger:active,
+  .work-link:active,
+  .activity-years button:active {
+    transform: none;
+    opacity: .78;
   }
 
   @media (hover: hover) and (pointer: fine) {
