@@ -153,7 +153,8 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
     let last = -FRAME;
     let rafId: number;
     const loop = (t: number) => {
-      if (heroVisible && (!isTouch || t - last >= FRAME)) {
+      const themeTransitioning = document.documentElement.classList.contains('theme-transitioning');
+      if (heroVisible && !themeTransitioning && (!isTouch || t - last >= FRAME)) {
         last = t;
         drawRibbons(t, dpr, ribbons);
       }

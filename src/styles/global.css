@@ -23,6 +23,9 @@
   --font-d: 'Space Grotesk', 'Noto Sans SC', sans-serif;
   --font-m: 'JetBrains Mono', monospace;
   --ease: cubic-bezier(.65, .05, 0, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   color-scheme: dark;
 }
 
@@ -406,27 +409,31 @@ body::after {
 .theme-toggle .icon-sun,
 .theme-toggle .icon-moon {
   position: absolute;
-  transition: opacity .25s var(--ease), transform .25s var(--ease);
+  transition: opacity 200ms var(--ease-in-out), transform 200ms var(--ease-in-out), filter 200ms ease;
 }
 
 [data-theme="dark"] .theme-toggle .icon-sun {
   opacity: 1;
   transform: scale(1) rotate(0deg);
+  filter: blur(0);
 }
 
 [data-theme="dark"] .theme-toggle .icon-moon {
   opacity: 0;
   transform: scale(.6) rotate(-30deg);
+  filter: blur(1.5px);
 }
 
 [data-theme="light"] .theme-toggle .icon-sun {
   opacity: 0;
   transform: scale(.6) rotate(30deg);
+  filter: blur(1.5px);
 }
 
 [data-theme="light"] .theme-toggle .icon-moon {
   opacity: 1;
   transform: scale(1) rotate(0deg);
+  filter: blur(0);
 }
 
 /* ---------- 主题圆形扩散切换（View Transitions API） ---------- */
@@ -446,7 +453,7 @@ body::after {
 
 /* 新主题从点击圆心扩散覆盖旧主题 */
 html.theme-transitioning::view-transition-new(root) {
-  animation: theme-circle-in .6s var(--ease) both;
+  animation: theme-circle-in 280ms var(--ease-out) both;
 }
 
 @keyframes theme-circle-in {

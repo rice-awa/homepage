@@ -35,6 +35,11 @@ function prefersReducedMotion() {
   return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function prefersCoarsePointer() {
+  return typeof matchMedia === 'function'
+    && matchMedia('(hover: none), (pointer: coarse)').matches;
+}
+
 function supportsViewTransition() {
   return typeof document !== 'undefined' && 'startViewTransition' in document;
 }
@@ -64,7 +69,7 @@ export function useTheme() {
     };
 
     // 无 VT / 偏好减少动效：直接切换（body 自带 color/background 过渡）
-    if (!supportsViewTransition() || prefersReducedMotion()) {
+    if (!supportsViewTransition() || prefersReducedMotion() || prefersCoarsePointer()) {
       commit();
       return;
     }
