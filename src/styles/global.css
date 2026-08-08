@@ -140,16 +140,30 @@ body::after {
 }
 
 .cursor-ring {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+}
+
+.cursor-ring-visual {
+  position: absolute;
   width: 38px;
   height: 38px;
   border: 1px solid rgba(34, 211, 238, .55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: width .35s var(--ease), height .35s var(--ease), background .35s, border-color .35s;
+  border-radius: 50%;
+  transition:
+    transform 180ms var(--ease-out),
+    background-color 180ms ease,
+    border-color 180ms ease;
 }
 
 .cursor-ring .cursor-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
   font-family: var(--font-m);
   font-size: 10px;
   letter-spacing: .15em;
@@ -159,21 +173,19 @@ body::after {
   user-select: none;
 }
 
-.cursor-ring.is-view {
-  width: 84px;
-  height: 84px;
+.cursor-ring.is-view .cursor-ring-visual {
   background: var(--cyan);
   border-color: var(--cyan);
+  transform: scale(2.210526);
 }
 
 .cursor-ring.is-view .cursor-label {
   opacity: 1;
 }
 
-.cursor-ring.is-link {
-  width: 56px;
-  height: 56px;
+.cursor-ring.is-link .cursor-ring-visual {
   background: rgba(34, 211, 238, .12);
+  transform: scale(1.473684);
 }
 
 @media (hover: none),
@@ -271,19 +283,33 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.4rem clamp(1.2rem, 4vw, 3.5rem);
+  padding: .9rem clamp(1.2rem, 4vw, 3.5rem);
+  isolation: isolate;
   opacity: 0;
   transform: translateY(-16px);
-  transition: background .5s, backdrop-filter .5s, padding .5s, border-color .5s;
+  transition: border-color 200ms ease;
   border-bottom: 1px solid transparent;
 }
 
-.nav.is-scrolled {
+.nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--nav-glass);
   backdrop-filter: blur(14px);
-  padding-top: .9rem;
-  padding-bottom: .9rem;
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+  pointer-events: none;
+}
+
+.nav.is-scrolled {
   border-color: var(--line);
+}
+
+.nav.is-scrolled::before {
+  opacity: 1;
 }
 
 .nav-logo {

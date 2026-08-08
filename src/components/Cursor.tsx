@@ -58,6 +58,7 @@ export default function Cursor({ active }: { active: boolean }) {
     <>
       <div ref={dotRef} className="cursor-dot" />
       <div ref={ringRef} className="cursor-ring">
+        <span className="cursor-ring-visual" aria-hidden="true" />
         <span ref={labelRef} className="cursor-label">VIEW</span>
       </div>
     </>
