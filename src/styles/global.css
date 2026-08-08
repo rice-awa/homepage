@@ -1255,18 +1255,15 @@ html.theme-transitioning body {
 }
 
 .activity-calendar-enter {
-  animation: activity-calendar-enter .28s var(--ease) both;
-}
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 
-@keyframes activity-calendar-enter {
-  from {
+  @starting-style {
     opacity: 0;
     transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -2043,7 +2040,11 @@ html.theme-transitioning body {
     transition: border-color 180ms ease, box-shadow 180ms ease;
   }
 
-  .activity-calendar-enter,
+  .activity-calendar-enter {
+    animation: none;
+    transition: none;
+  }
+
   .activity-tooltip,
   .activity-skeleton i {
     animation: none;

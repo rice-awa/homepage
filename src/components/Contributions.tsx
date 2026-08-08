@@ -54,6 +54,7 @@ function Skeleton() {
 export default function Contributions() {
   const years = useMemo(() => yearsFor(), []);
   const [selectedYear, setSelectedYear] = useState(years[0]);
+  const [animateCalendar, setAnimateCalendar] = useState(false);
   const [activeDay, setActiveDay] = useState<ContributionDay | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const { data, error, loading, retry } = useContributions(years, selectedYear);
@@ -100,9 +101,12 @@ export default function Contributions() {
     };
   }, [clearActiveDayTimer, updateActiveDay]);
 
-  const selectYear = (year: number) => {
+  const selectYear = (year: number, animate: boolean) => {
+    if (year === selectedYear) return;
+
     clearActiveDayTimer();
     setActiveDay(null);
+    setAnimateCalendar(animate);
     setSelectedYear(year);
   };
 
@@ -120,7 +124,7 @@ export default function Contributions() {
     if (nextIndex === undefined) return;
 
     event.preventDefault();
-    selectYear(years[nextIndex]);
+    selectYear(years[nextIndex], false);
     event.currentTarget.parentElement
       ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[nextIndex]
       ?.focus();
@@ -161,7 +165,10 @@ export default function Contributions() {
             </div>
           )}
           {calendar && (
-            <div className="activity-scroll activity-calendar-enter" key={selectedYear}>
+            <div
+              className={animateCalendar ? 'activity-scroll activity-calendar-enter' : 'activity-scroll'}
+              key={selectedYear}
+            >
               <div className="activity-calendar" role="grid" aria-label={`${selectedYear} contribution calendar`}>
                 <div className="activity-weekdays" aria-hidden="true">
                   {WEEKDAYS.map((label, index) => <span key={index}>{label}</span>)}
@@ -209,7 +216,7 @@ export default function Contributions() {
               aria-selected={year === selectedYear}
               id={`activity-year-${year}`}
               key={year}
-              onClick={() => selectYear(year)}
+              onClick={() => selectYear(year, true)}
               onKeyDown={(event) => handleYearKeyDown(event, index)}
               role="tab"
               tabIndex={year === selectedYear ? 0 : -1}
