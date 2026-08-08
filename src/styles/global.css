@@ -1396,14 +1396,7 @@ html.theme-transitioning body {
   gap: var(--activity-gap);
   min-width: max-content;
   opacity: .55;
-}
-
-.activity-skeleton i {
   animation: activity-pulse 1.4s ease-in-out infinite alternate;
-}
-
-.activity-skeleton i:nth-child(3n) {
-  animation-delay: .2s;
 }
 
 @keyframes activity-pulse {
@@ -2048,7 +2041,7 @@ html.theme-transitioning body {
     transform: none;
   }
 
-  .activity-skeleton i {
+  .activity-skeleton {
     animation: none;
   }
 
