@@ -1,6 +1,7 @@
 async page => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('.loader').waitFor({ state: 'detached', timeout: 6000 });
   await page.locator('#activity').scrollIntoViewIfNeeded();
   await page.locator('#activity-calendar .activity-calendar').waitFor();
   await page.locator('#activity-calendar .activity-tooltip-slot').waitFor();

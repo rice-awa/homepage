@@ -182,7 +182,10 @@ export default function Contributions() {
                         className={`activity-day level-${day.level}`}
                         data-date={day.date}
                         key={day.date}
-                        onBlur={() => {
+                        onBlur={(event) => {
+                          const grid = gridRef.current;
+                          if (grid && event.relatedTarget instanceof Node && grid.contains(event.relatedTarget)) return;
+
                           clearActiveDayTimer();
                           setActiveDay(null);
                         }}
@@ -216,7 +219,7 @@ export default function Contributions() {
               aria-selected={year === selectedYear}
               id={`activity-year-${year}`}
               key={year}
-              onClick={() => selectYear(year, true)}
+              onClick={(event) => selectYear(year, event.detail > 0)}
               onKeyDown={(event) => handleYearKeyDown(event, index)}
               role="tab"
               tabIndex={year === selectedYear ? 0 : -1}

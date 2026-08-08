@@ -53,6 +53,10 @@ export default function Nav({ clock }: NavProps) {
     const links = drawer.querySelectorAll('.nd-link');
     const foot = drawer.querySelector('.nd-foot');
 
+    timelineRef.current?.kill();
+    timelineRef.current = null;
+    gsap.killTweensOf([drawer, links, foot]);
+
     if (menuOpen) {
       lenis?.stop();
       document.body.style.overflow = 'hidden';
@@ -60,8 +64,6 @@ export default function Nav({ clock }: NavProps) {
         gsap.set(drawer, { visibility: 'visible', pointerEvents: 'auto', clipPath: 'inset(0 0 0% 0)' });
         return;
       }
-      timelineRef.current?.kill();
-      gsap.killTweensOf([drawer, links, foot]);
 
       const timeline = gsap.timeline();
       timelineRef.current = timeline;
@@ -91,8 +93,6 @@ export default function Nav({ clock }: NavProps) {
         finish();
         return;
       }
-      timelineRef.current?.kill();
-      gsap.killTweensOf([drawer, links, foot]);
 
       const timeline = gsap.timeline();
       timelineRef.current = timeline;
@@ -101,9 +101,9 @@ export default function Nav({ clock }: NavProps) {
         .call(() => {
           if (timelineRef.current !== timeline) return;
 
+          timelineRef.current = null;
           gsap.set(drawer, { visibility: 'hidden', pointerEvents: 'none' });
           finish();
-          timelineRef.current = null;
         });
     }
   }, [menuOpen]);

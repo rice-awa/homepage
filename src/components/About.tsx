@@ -10,7 +10,14 @@ export default function About({ reduced }: { reduced: boolean }) {
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section || reduced) return;
+    if (!section) return;
+
+    if (reduced) {
+      section.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+        el.textContent = el.dataset.count ?? '0';
+      });
+      return;
+    }
 
     const ctx = gsap.context(() => {
       gsap.from('.avatar-frame', {

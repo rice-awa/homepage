@@ -2088,6 +2088,10 @@ html.theme-transitioning body {
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+
   .nav-logo i,
   .scroll-hint .wire::after,
   .work-intro .drag .line,

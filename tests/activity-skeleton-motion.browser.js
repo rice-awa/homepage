@@ -49,6 +49,8 @@ async page => {
     throw new Error(`skeleton animation does not match the single activity pulse: ${JSON.stringify(animated.style)}`);
   }
 
+  await page.locator('.loader').waitFor({ state: 'detached', timeout: 6000 });
+
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.locator('#activity').scrollIntoViewIfNeeded();
@@ -58,6 +60,8 @@ async page => {
   if (reduced.cellCount !== 371 || reduced.animationCount !== 0) {
     throw new Error(`reduced motion should keep 371 cells with no skeleton animation: ${JSON.stringify(reduced)}`);
   }
+
+  await page.locator('.loader').waitFor({ state: 'detached', timeout: 6000 });
 
   return { animated, reduced };
 }
