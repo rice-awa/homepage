@@ -1910,27 +1910,26 @@ html.theme-transitioning body {
   position: absolute;
   left: 10px;
   right: 10px;
+  top: 50%;
   height: 1.5px;
   background: var(--ink);
-  transition: transform .45s var(--ease), top .45s var(--ease);
+  transition: transform 200ms var(--ease-out);
 }
 
 .nav-burger span:first-child {
-  top: 16px;
+  transform: translateY(calc(-50% - 4px));
 }
 
 .nav-burger span:last-child {
-  top: 23px;
+  transform: translateY(calc(-50% + 4px));
 }
 
 .nav-burger.is-open span:first-child {
-  top: 19px;
-  transform: rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
 }
 
 .nav-burger.is-open span:last-child {
-  top: 19px;
-  transform: rotate(-45deg);
+  transform: translateY(-50%) rotate(-45deg);
 }
 
 /* ---------- 全屏抽屉菜单（桌面端不渲染） ---------- */

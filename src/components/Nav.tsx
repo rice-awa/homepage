@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CustomEase } from 'gsap/CustomEase';
 import { getLenis } from '../hooks/useLenis';
 import { NAV } from '../constants/content';
 import { useTheme } from '../hooks/useTheme';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, CustomEase);
+
+const easeDrawer = CustomEase.create('drawer', '0.32,0.72,0,1');
+const easeOut = CustomEase.create('ui-out', '0.23,1,0.32,1');
 
 interface NavProps {
   clock: string;
@@ -18,6 +22,7 @@ export default function Nav({ clock }: NavProps) {
   const { theme, toggleTheme } = useTheme();
   const pendingHref = useRef<string | null>(null);
   const firstRun = useRef(true);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -55,21 +60,18 @@ export default function Nav({ clock }: NavProps) {
         gsap.set(drawer, { visibility: 'visible', pointerEvents: 'auto', clipPath: 'inset(0 0 0% 0)' });
         return;
       }
-      gsap
-        .timeline()
+      timelineRef.current?.kill();
+      gsap.killTweensOf([drawer, links, foot]);
+
+      const timeline = gsap.timeline();
+      timelineRef.current = timeline;
+      timeline
         .set(drawer, { visibility: 'visible', pointerEvents: 'auto' })
-        .fromTo(
-          drawer,
-          { clipPath: 'inset(0 0 100% 0)' },
-          { clipPath: 'inset(0 0 0% 0)', duration: 0.55, ease: 'expo.inOut' },
-        )
-        .fromTo(
-          links,
-          { yPercent: 120 },
-          { yPercent: 0, duration: 0.6, stagger: 0.06, ease: 'expo.out' },
-          '-=0.25',
-        )
-        .fromTo(foot, { opacity: 0 }, { opacity: 1, duration: 0.4 }, '-=0.35');
+        .set(links, { yPercent: 120 })
+        .set(foot, { opacity: 0 })
+        .to(drawer, { clipPath: 'inset(0 0 0% 0)', duration: 0.28, ease: easeDrawer }, 0)
+        .to(links, { yPercent: 0, duration: 0.24, stagger: 0.04, ease: easeOut }, 0.12)
+        .to(foot, { opacity: 1, duration: 0.18, ease: easeOut }, 0.34);
     } else {
       const finish = () => {
         lenis?.start();
@@ -89,13 +91,29 @@ export default function Nav({ clock }: NavProps) {
         finish();
         return;
       }
-      gsap
-        .timeline()
-        .to(drawer, { clipPath: 'inset(0 0 100% 0)', duration: 0.38, ease: 'expo.in' })
-        .set(drawer, { visibility: 'hidden', pointerEvents: 'none' })
-        .call(finish);
+      timelineRef.current?.kill();
+      gsap.killTweensOf([drawer, links, foot]);
+
+      const timeline = gsap.timeline();
+      timelineRef.current = timeline;
+      timeline
+        .to(drawer, { clipPath: 'inset(0 0 100% 0)', duration: 0.2, ease: easeOut })
+        .call(() => {
+          if (timelineRef.current !== timeline) return;
+
+          gsap.set(drawer, { visibility: 'hidden', pointerEvents: 'none' });
+          finish();
+          timelineRef.current = null;
+        });
     }
   }, [menuOpen]);
+
+  useEffect(() => () => {
+    timelineRef.current?.kill();
+    timelineRef.current = null;
+    getLenis()?.start();
+    document.body.style.overflow = '';
+  }, []);
 
   const handleScroll = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
