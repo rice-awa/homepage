@@ -5,12 +5,12 @@ import { ABOUT } from '../constants/content';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function About() {
+export default function About({ reduced }: { reduced: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    if (!section || reduced) return;
 
     const ctx = gsap.context(() => {
       gsap.from('.avatar-frame', {
@@ -84,7 +84,7 @@ export default function About() {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [reduced]);
 
   const { tag, heading, paragraphs, avatar, stats } = ABOUT;
 

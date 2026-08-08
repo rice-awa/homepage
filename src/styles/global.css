@@ -1536,30 +1536,6 @@ html.theme-transitioning body {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .activity-day,
-  .activity-years button {
-    transition: none;
-  }
-
-  .activity-calendar-enter {
-    animation: none;
-  }
-
-  .activity-tooltip {
-    animation: none;
-  }
-
-  .activity-day:hover,
-  .activity-day:focus-visible {
-    transform: none;
-  }
-
-  .activity-skeleton i {
-    animation: none;
-  }
-}
-
 /* ---------- About ---------- */
 .about {
   padding: clamp(7rem, 16vh, 12rem) clamp(1.2rem, 5vw, 4.5rem);
@@ -2039,5 +2015,48 @@ html.theme-transitioning body {
   /* 联系链接备注在窄屏隐藏，避免名称与箭头被挤压 */
   .c-link .cl-note {
     display: none;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .nav-logo i,
+  .scroll-hint .wire::after,
+  .work-intro .drag .line,
+  .avatar-ring,
+  .footer .f-top i {
+    animation: none;
+  }
+
+  .works-pin {
+    height: auto;
+    min-height: 100svh;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .works-track {
+    transform: none !important;
+  }
+
+  .activity-day {
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .activity-calendar-enter,
+  .activity-tooltip,
+  .activity-skeleton i {
+    animation: none;
+  }
+
+  .activity-day:hover,
+  .activity-day:focus-visible {
+    transform: none;
+  }
+
+  .activity-day:focus-visible {
+    border-color: var(--cyan);
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
   }
 }

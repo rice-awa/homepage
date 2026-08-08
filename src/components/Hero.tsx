@@ -71,9 +71,17 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
     const nav = navRef.current;
 
     if (!title || !stroke) return;
-    if (reduced) return;
 
     const chars = title.querySelectorAll('.char');
+
+    if (reduced) {
+      gsap.set(chars, { yPercent: 0 });
+      gsap.set(stroke, { yPercent: 0 });
+      gsap.set(cn, { opacity: 1, y: 0 });
+      gsap.set(nav, { opacity: 1, y: 0 });
+      gsap.set(foot, { opacity: 1 });
+      return;
+    }
 
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
     tl.to(chars, { yPercent: 0, duration: 1.3, stagger: 0.05 }, 0)
@@ -81,6 +89,10 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
       .to(cn, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0.7)
       .to(nav, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.8)
       .to(foot, { opacity: 1, duration: 0.9 }, 1);
+
+    return () => {
+      tl.kill();
+    };
   }, [loaded, reduced]);
 
   const drawRibbons = useCallback((t: number, dpr: number, ribbons: typeof RIBBONS) => {

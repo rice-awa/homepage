@@ -83,12 +83,12 @@ function WorkCard({ item }: WorkItemProps) {
   );
 }
 
-export default function Works() {
+export default function Works({ reduced }: { reduced: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || reduced) return;
 
     const cards = gsap.utils.toArray('.work-card') as HTMLElement[];
     const worksNow = document.getElementById('worksNow');
@@ -160,7 +160,7 @@ export default function Works() {
     });
 
     return () => ctx.revert();
-  }, []);
+  }, [reduced]);
 
   return (
     <section className="works section" id="works">

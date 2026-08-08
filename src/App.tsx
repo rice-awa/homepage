@@ -57,46 +57,54 @@ export default function App() {
   useEffect(() => {
     if (!loaded) return;
 
-    gsap.to('#heroInner', {
-      yPercent: -18,
-      opacity: 0.25,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
-
-    gsap.to('.hero-bg', {
-      yPercent: 12,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
-
-    gsap.utils.toArray('.sec-tag').forEach((tag) => {
-      gsap.from(tag as HTMLElement, {
-        opacity: 0,
-        x: -30,
-        duration: 0.9,
-        ease: 'power3.out',
+    const ctx = reduced ? null : gsap.context(() => {
+      gsap.to('#heroInner', {
+        yPercent: -18,
+        opacity: 0.25,
+        ease: 'none',
         scrollTrigger: {
-          trigger: tag as HTMLElement,
-          start: 'top 90%',
-          toggleActions: 'play none none reverse',
+          trigger: '#hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
         },
+      });
+
+      gsap.to('.hero-bg', {
+        yPercent: 12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      gsap.utils.toArray('.sec-tag').forEach((tag) => {
+        gsap.from(tag as HTMLElement, {
+          opacity: 0,
+          x: -30,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: tag as HTMLElement,
+            start: 'top 90%',
+            toggleActions: 'play none none reverse',
+          },
+        });
       });
     });
 
-    window.addEventListener('load', () => ScrollTrigger.refresh());
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('load', refresh);
     ScrollTrigger.refresh();
-  }, [loaded]);
+
+    return () => {
+      window.removeEventListener('load', refresh);
+      ctx?.revert();
+    };
+  }, [loaded, reduced]);
 
   return (
     <HelmetProvider>
@@ -142,12 +150,12 @@ export default function App() {
 
       <main id="top">
         <Hero isTouch={isTouch} reduced={reduced} loaded={loaded} />
-        <Manifesto />
-        <Works />
+        <Manifesto reduced={reduced} />
+        <Works reduced={reduced} />
         <Stack reduced={reduced} />
-        <About />
+        <About reduced={reduced} />
         <Contributions />
-        <Contact />
+        <Contact reduced={reduced} />
       </main>
     </HelmetProvider>
   );

@@ -5,11 +5,13 @@ import { MANIFESTO } from '../constants/content';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Manifesto() {
+export default function Manifesto({ reduced }: { reduced: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
   const linesRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
+    if (reduced) return;
+
     const ctx = gsap.context(() => {
       linesRef.current.forEach((line) => {
         if (!line) return;
@@ -45,7 +47,7 @@ export default function Manifesto() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reduced]);
 
   const { tag, lines, foot } = MANIFESTO;
 

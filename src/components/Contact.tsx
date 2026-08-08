@@ -12,10 +12,12 @@ const ArrowIcon = () => (
   </svg>
 );
 
-export default function Contact() {
+export default function Contact({ reduced }: { reduced: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    if (reduced) return;
+
     const ctx = gsap.context(() => {
       (gsap.utils.toArray('[data-ct]') as HTMLElement[]).forEach((el, i) => {
         gsap.fromTo(el, { yPercent: 110 }, {
@@ -56,7 +58,7 @@ export default function Contact() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reduced]);
 
   const handleBackToTop = (e: React.MouseEvent) => {
     e.preventDefault();
