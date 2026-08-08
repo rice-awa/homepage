@@ -368,13 +368,15 @@ body::after {
   transition: transform .45s var(--ease);
 }
 
-.nav-links a:hover {
-  color: var(--ink);
-}
+@media (hover: hover) and (pointer: fine) {
+  .nav-links a:hover {
+    color: var(--ink);
+  }
 
-.nav-links a:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
+  .nav-links a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 }
 
 .nav-time {
@@ -411,14 +413,18 @@ body::after {
   transition: border-color .3s var(--ease), background .3s var(--ease), color .3s var(--ease);
 }
 
-.theme-toggle:hover,
+@media (hover: hover) and (pointer: fine) {
+  .theme-toggle:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    outline: none;
+  }
+}
+
 .theme-toggle:focus-visible {
   border-color: var(--cyan);
   color: var(--cyan);
   outline: none;
-}
-
-.theme-toggle:focus-visible {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--cyan) 35%, transparent);
 }
 
@@ -702,8 +708,10 @@ html.theme-transitioning body {
   transition: color .3s;
 }
 
-.hero-social a:hover {
-  color: var(--cyan);
+@media (hover: hover) and (pointer: fine) {
+  .hero-social a:hover {
+    color: var(--cyan);
+  }
 }
 
 .hero-coord {
@@ -914,8 +922,10 @@ html.theme-transitioning body {
   transition: filter .5s;
 }
 
-.work-cover:hover img {
-  filter: saturate(1.15);
+@media (hover: hover) and (pointer: fine) {
+  .work-cover:hover img {
+    filter: saturate(1.15);
+  }
 }
 
 .work-cover .veil {
@@ -1054,14 +1064,16 @@ html.theme-transitioning body {
   transition: transform .4s var(--ease);
 }
 
-.work-card:hover .work-link {
-  background: var(--cyan);
-  border-color: var(--cyan);
-}
+@media (hover: hover) and (pointer: fine) {
+  .work-card:hover .work-link {
+    background: var(--cyan);
+    border-color: var(--cyan);
+  }
 
-.work-card:hover .work-link svg {
-  stroke: var(--on-accent);
-  transform: rotate(45deg);
+  .work-card:hover .work-link svg {
+    stroke: var(--on-accent);
+    transform: rotate(45deg);
+  }
 }
 
 .work-outro {
@@ -1093,8 +1105,10 @@ html.theme-transitioning body {
   transition: border-color .3s;
 }
 
-.work-outro a:hover {
-  border-color: var(--cyan);
+@media (hover: hover) and (pointer: fine) {
+  .work-outro a:hover {
+    border-color: var(--cyan);
+  }
 }
 
 .works-progress {
@@ -1354,7 +1368,16 @@ html.theme-transitioning body {
   transition: transform .18s var(--ease), border-color .18s, box-shadow .18s;
 }
 
-.activity-day:hover,
+@media (hover: hover) and (pointer: fine) {
+  .activity-day:hover {
+    transform: scale(1.25);
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px var(--bg2);
+    outline: none;
+    z-index: 1;
+  }
+}
+
 .activity-day:focus-visible {
   transform: scale(1.25);
   border-color: var(--ink);
@@ -1484,7 +1507,14 @@ html.theme-transitioning body {
   transition: color .2s, background .2s;
 }
 
-.activity-years button:hover,
+@media (hover: hover) and (pointer: fine) {
+  .activity-years button:hover {
+    color: var(--cyan);
+    background: rgba(34, 211, 238, .07);
+    outline: none;
+  }
+}
+
 .activity-years button:focus-visible,
 .activity-years button[aria-selected='true'] {
   color: var(--cyan);
@@ -1778,8 +1808,10 @@ html.theme-transitioning body {
   z-index: 0;
 }
 
-.c-link:hover::before {
-  transform: scaleY(1);
+@media (hover: hover) and (pointer: fine) {
+  .c-link:hover::before {
+    transform: scaleY(1);
+  }
 }
 
 .c-link>* {
@@ -1818,18 +1850,20 @@ html.theme-transitioning body {
   transition: transform .5s var(--ease);
 }
 
-.c-link:hover .cl-name,
-.c-link:hover .cl-note {
-  color: var(--on-accent);
-}
+@media (hover: hover) and (pointer: fine) {
+  .c-link:hover .cl-name,
+  .c-link:hover .cl-note {
+    color: var(--on-accent);
+  }
 
-.c-link:hover .cl-name .idx {
-  color: var(--on-accent-dim);
-}
+  .c-link:hover .cl-name .idx {
+    color: var(--on-accent-dim);
+  }
 
-.c-link:hover .cl-arrow {
-  stroke: var(--on-accent);
-  transform: translate(4px, -4px);
+  .c-link:hover .cl-arrow {
+    stroke: var(--on-accent);
+    transform: translate(4px, -4px);
+  }
 }
 
 .footer {
@@ -1864,8 +1898,10 @@ html.theme-transitioning body {
   transition: color .3s;
 }
 
-.to-top:hover {
-  color: var(--cyan);
+@media (hover: hover) and (pointer: fine) {
+  .to-top:hover {
+    color: var(--cyan);
+  }
 }
 
 @media (max-width: 640px) {
@@ -2071,12 +2107,14 @@ html.theme-transitioning body {
     animation: none;
   }
 
-  .activity-day:hover,
-  .activity-day:focus-visible {
-    transform: none;
+  @media (hover: hover) and (pointer: fine) {
+    .activity-day:hover {
+      transform: none;
+    }
   }
 
   .activity-day:focus-visible {
+    transform: none;
     border-color: var(--cyan);
     outline: 2px solid var(--cyan);
     outline-offset: 2px;
