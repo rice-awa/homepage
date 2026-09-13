@@ -471,29 +471,37 @@ body::after {
   filter: blur(0);
 }
 
-/* One snapshot fade keeps all theme colors in sync. */
+/* The new theme wipes in as a circle growing from the toggle that was pressed.
+   The old snapshot stays put underneath — cross-fading it too would muddy the
+   edge of the circle. 320ms covers a full viewport without the theme switch
+   starting to feel lagged; the snapshot layer swallows input while it runs. */
 html.theme-transitioning::view-transition-group(root) {
   animation: none;
 }
 
 html.theme-transitioning::view-transition-old(root) {
-  animation: theme-fade-out 200ms ease both;
-  mix-blend-mode: normal;
-  z-index: 2;
-}
-
-html.theme-transitioning::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
   z-index: 1;
+}
+
+html.theme-transitioning::view-transition-new(root) {
+  animation: theme-circle-in 320ms var(--ease-out) both;
+  mix-blend-mode: normal;
+  z-index: 2;
 }
 
 html.theme-transitioning::view-transition {
   pointer-events: none;
 }
 
-@keyframes theme-fade-out {
-  to { opacity: 0; }
+@keyframes theme-circle-in {
+  from {
+    clip-path: circle(0px at var(--theme-x, 50vw) var(--theme-y, 50vh));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50vw) var(--theme-y, 50vh));
+  }
 }
 
 html.theme-transitioning *,
@@ -503,7 +511,7 @@ html.theme-transitioning *::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.theme-transitioning::view-transition-old(root) {
+  html.theme-transitioning::view-transition-new(root) {
     animation: none;
   }
 }
