@@ -228,7 +228,7 @@ export default function Hero({ isTouch, reduced, loaded }: HeroProps) {
           <p ref={cnRef} className="hero-cn" id="heroCn">
             {HERO.cn.prefix}
             <strong>{HERO.cn.highlights[0]}</strong>
-            {' 与 '}
+            {' '}到{' '}
             <strong>{HERO.cn.highlights[1]}</strong>
             {HERO.cn.suffix}
           </p>
