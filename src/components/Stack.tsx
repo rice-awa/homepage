@@ -1,91 +1,74 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef, useState } from 'react';
 import { STACK } from '../constants/content';
 
-gsap.registerPlugin(ScrollTrigger);
-
-export default function Stack({ reduced }: { reduced: boolean }) {
-  const mq1Ref = useRef<HTMLDivElement>(null);
-  const mq2Ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const mq1 = mq1Ref.current;
-    const mq2 = mq2Ref.current;
-    if (!mq1 || !mq2) return;
-
-    if (reduced) {
-      gsap.set([mq1, mq2], { x: 0 });
-      return;
-    }
-
-    const w1 = mq1.scrollWidth / 2;
-    const w2 = mq2.scrollWidth / 2;
-
-    const tween1 = gsap.fromTo(
-      mq1,
-      { x: 0 },
-      { x: -w1, duration: 26, ease: 'none', repeat: -1 },
-    );
-    const tween2 = gsap.fromTo(
-      mq2,
-      { x: -w2 },
-      { x: 0, duration: 26, ease: 'none', repeat: -1 },
-    );
-
-    let mqIdle: ReturnType<typeof setTimeout>;
-    ScrollTrigger.create({
-      trigger: '.stack',
-      start: 'top bottom',
-      end: 'bottom top',
-      onUpdate(self) {
-        const v = 1 + Math.min(Math.abs(self.getVelocity()) / 2500, 1.6);
-        gsap.to(tween1, { timeScale: v, duration: 0.3, overwrite: true });
-        gsap.to(tween2, { timeScale: v, duration: 0.3, overwrite: true });
-        clearTimeout(mqIdle);
-        mqIdle = setTimeout(() => {
-          gsap.to(tween1, { timeScale: 1, duration: 0.6, overwrite: true });
-          gsap.to(tween2, { timeScale: 1, duration: 0.6, overwrite: true });
-        }, 160);
-      },
-    });
-
-    return () => {
-      clearTimeout(mqIdle);
-      tween1.kill();
-      tween2.kill();
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars.trigger === '.stack') st.kill();
-      });
-    };
-  }, [reduced]);
-
-  const renderMarquee = (items: string[], id: string, ref: React.RefObject<HTMLDivElement | null>) => (
-    <div className="marquee">
-      <div ref={ref} className="marquee-track" id={id}>
-        {[...items, ...items].map((t, i) => (
-          <span key={i} className="marquee-item">
-            <span className={i % 2 ? 'hollow' : ''}>{t}</span>
-            <i className="dot" />
-          </span>
+function Marquee({ items, reverse = false, compact = false }: {
+  items: string[];
+  reverse?: boolean;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`marquee${compact ? ' marquee-agents' : ''}`}>
+      <div className={`marquee-track${reverse ? ' is-reversed' : ''}`}>
+        {[0, 1].map((copy) => (
+          <div className="marquee-group" key={copy} aria-hidden={copy === 1 ? true : undefined}>
+            {items.map((item, i) => (
+              <span key={item} className="marquee-item">
+                <span className={i % 2 ? 'hollow' : ''}>{item}</span>
+                <i className="dot" aria-hidden="true" />
+              </span>
+            ))}
+          </div>
         ))}
       </div>
     </div>
   );
+}
+
+export default function Stack({ reduced }: { reduced: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [paused, setPaused] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [pageVisible, setPageVisible] = useState(!document.hidden);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    const onVisibility = () => setPageVisible(!document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
 
   return (
-    <section className="stack section" id="stack">
-      <div className="sec-tag">
-        ( {STACK.tag.num} ) — <em>{STACK.tag.en}</em> {STACK.tag.cn}
+    <section ref={sectionRef} className="stack section" id="stack"
+      data-paused={paused || !visible || !pageVisible} data-reduced={reduced}>
+      <div className="stack-heading">
+        <div className="sec-tag">
+          ( {STACK.tag.num} ) — <em>{STACK.tag.en}</em> {STACK.tag.cn}
+        </div>
+        {!reduced && (
+          <button type="button" className="marquee-toggle" data-cursor="link"
+            aria-pressed={paused} onClick={() => setPaused((value) => !value)}>
+            {paused ? STACK.resumeLabel : STACK.pauseLabel}
+          </button>
+        )}
       </div>
-      {renderMarquee(STACK.marquee1, 'mq1', mq1Ref)}
-      {renderMarquee(STACK.marquee2, 'mq2', mq2Ref)}
-      <div className="marquee-foot">
-        {STACK.foot.map((f, i) => (
-          <div key={i}>
-            <strong>{f.label}</strong>
-            {f.text}
+      <Marquee items={STACK.marquee1} />
+      <Marquee items={STACK.marquee2} reverse />
+      {STACK.agents.items.length > 0 && (
+        <div className="agent-tools" role="group" aria-labelledby="agent-tools-title">
+          <div className="agent-tools-heading">
+            <h3 id="agent-tools-title">{STACK.agents.title}</h3>
+            <p>{STACK.agents.description}</p>
           </div>
+          <Marquee items={STACK.agents.items} compact />
+        </div>
+      )}
+      <div className="marquee-foot">
+        {STACK.foot.map((foot) => (
+          <div key={foot.label}><strong>{foot.label}</strong>{foot.text}</div>
         ))}
       </div>
     </section>

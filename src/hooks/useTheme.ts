@@ -1,22 +1,17 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 export type Theme = 'light' | 'dark';
-
 const STORAGE_KEY = 'theme';
 
-export type ThemeToggleOrigin = {
-  x: number;
-  y: number;
-};
-
 function readTheme(): Theme {
-  if (typeof document !== 'undefined') {
-    const fromDom = document.documentElement.dataset.theme;
-    if (fromDom === 'light' || fromDom === 'dark') return fromDom;
-  }
-  if (typeof localStorage !== 'undefined') {
+  const fromDom = document.documentElement.dataset.theme;
+  if (fromDom === 'light' || fromDom === 'dark') return fromDom;
+  try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
+  } catch {
+    // Storage can be unavailable in private browsing.
   }
   return 'dark';
 }
@@ -27,72 +22,65 @@ function applyTheme(theme: Theme) {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {
-    // ignore quota / private mode
+    // Keep the current session usable without storage.
   }
 }
 
-function prefersReducedMotion() {
-  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-function prefersCoarsePointer() {
-  return typeof matchMedia === 'function'
-    && matchMedia('(hover: none), (pointer: coarse)').matches;
-}
-
-function supportsViewTransition() {
-  return typeof document !== 'undefined' && 'startViewTransition' in document;
-}
-
-/** 从点击点到覆盖整个视口所需的最大圆半径 */
-function maxRadiusFrom(x: number, y: number) {
-  const { innerWidth: w, innerHeight: h } = window;
-  const dist = (cx: number, cy: number) => Math.hypot(cx - x, cy - y);
-  return Math.max(dist(0, 0), dist(w, 0), dist(0, h), dist(w, h));
-}
-
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(() => readTheme());
+  const [theme, setThemeState] = useState<Theme>(readTheme);
+  const requested = useRef(theme);
+  const revision = useRef(0);
+  const active = useRef<ReturnType<Document['startViewTransition']> | null>(null);
 
-  const setTheme = useCallback((next: Theme) => {
-    applyTheme(next);
-    setThemeState(next);
+  useEffect(() => () => {
+    revision.current += 1;
+    active.current?.skipTransition();
+    active.current = null;
+    document.documentElement.classList.remove('theme-transitioning');
   }, []);
 
-  const toggleTheme = useCallback((origin?: ThemeToggleOrigin) => {
-    const next: Theme = readTheme() === 'dark' ? 'light' : 'dark';
+  const setTheme = useCallback((next: Theme, animate = false) => {
+    requested.current = next;
+    const currentRevision = ++revision.current;
+    const root = document.documentElement;
+    const interrupted = active.current !== null;
+    active.current?.skipTransition();
+    active.current = null;
+    root.classList.remove('theme-transitioning');
 
     const commit = () => {
-      // 视觉主题靠 data-theme CSS 变量，必须在 VT 回调内同步写入 DOM
+      if (revision.current !== currentRevision) return;
       applyTheme(next);
-      setThemeState(next);
+      flushSync(() => setThemeState(next));
     };
 
-    // 无 VT / 偏好减少动效：直接切换（body 自带 color/background 过渡）
-    if (!supportsViewTransition() || prefersReducedMotion() || prefersCoarsePointer()) {
+    // Repeated input settles immediately; a stale snapshot must never win.
+    if (!animate || interrupted || typeof document.startViewTransition !== 'function'
+      || matchMedia('(prefers-reduced-motion: reduce)').matches) {
       commit();
       return;
     }
 
-    const x = origin?.x ?? window.innerWidth / 2;
-    const y = origin?.y ?? window.innerHeight / 2;
-    const r = maxRadiusFrom(x, y);
-
-    const root = document.documentElement;
-    root.style.setProperty('--theme-x', `${x}px`);
-    root.style.setProperty('--theme-y', `${y}px`);
-    root.style.setProperty('--theme-r', `${r}px`);
     root.classList.add('theme-transitioning');
-
-    const transition = document.startViewTransition(commit);
-
-    transition.finished.finally(() => {
+    try {
+      const transition = document.startViewTransition(commit);
+      active.current = transition;
+      const cleanup = () => {
+        if (active.current !== transition) return;
+        active.current = null;
+        root.classList.remove('theme-transitioning');
+      };
+      void transition.ready.catch(() => undefined);
+      void transition.finished.then(cleanup, cleanup);
+    } catch {
       root.classList.remove('theme-transitioning');
-      root.style.removeProperty('--theme-x');
-      root.style.removeProperty('--theme-y');
-      root.style.removeProperty('--theme-r');
-    });
+      commit();
+    }
   }, []);
+
+  const toggleTheme = useCallback((animate = true) => {
+    setTheme(requested.current === 'dark' ? 'light' : 'dark', animate);
+  }, [setTheme]);
 
   return { theme, setTheme, toggleTheme };
 }

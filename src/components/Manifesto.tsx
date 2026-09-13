@@ -81,7 +81,7 @@ export default function Manifesto({ reduced }: { reduced: boolean }) {
       <p className="m-foot">
         {foot.prefix}
         <strong>{foot.highlights[0]}</strong>
-        {' '}到{' '}
+        {' 与 '}
         <strong>{foot.highlights[1]}</strong>
         {foot.suffix}
       </p>

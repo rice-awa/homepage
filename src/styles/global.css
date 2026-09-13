@@ -82,7 +82,6 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-d);
-  transition: background-color .3s var(--ease), color .3s var(--ease);
   width: 100%;
   overflow-x: hidden;
   overflow-x: clip;
@@ -365,7 +364,7 @@ body::after {
   background: var(--cyan);
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform .45s var(--ease);
+  transition: transform 200ms var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -445,7 +444,7 @@ body::after {
 .theme-toggle .icon-sun,
 .theme-toggle .icon-moon {
   position: absolute;
-  transition: opacity 200ms var(--ease-in-out), transform 200ms var(--ease-in-out), filter 200ms ease;
+  transition: opacity 160ms ease;
 }
 
 [data-theme="dark"] .theme-toggle .icon-sun {
@@ -472,43 +471,39 @@ body::after {
   filter: blur(0);
 }
 
-/* ---------- 主题圆形扩散切换（View Transitions API） ---------- */
-::view-transition-old(root),
-::view-transition-new(root) {
+/* One snapshot fade keeps all theme colors in sync. */
+html.theme-transitioning::view-transition-group(root) {
   animation: none;
-  mix-blend-mode: normal;
 }
 
-::view-transition-old(root) {
+html.theme-transitioning::view-transition-old(root) {
+  animation: theme-fade-out 200ms ease both;
+  mix-blend-mode: normal;
+  z-index: 2;
+}
+
+html.theme-transitioning::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
   z-index: 1;
 }
 
-::view-transition-new(root) {
-  z-index: 9999;
+html.theme-transitioning::view-transition {
+  pointer-events: none;
 }
 
-/* 新主题从点击圆心扩散覆盖旧主题 */
-html.theme-transitioning::view-transition-new(root) {
-  animation: theme-circle-in 280ms var(--ease-out) both;
+@keyframes theme-fade-out {
+  to { opacity: 0; }
 }
 
-@keyframes theme-circle-in {
-  from {
-    clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
-  }
-  to {
-    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
-  }
-}
-
-/* 扩散期间关闭颜色过渡，避免与快照动画打架 */
-html.theme-transitioning,
-html.theme-transitioning body {
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
   transition: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.theme-transitioning::view-transition-new(root) {
+  html.theme-transitioning::view-transition-old(root) {
     animation: none;
   }
 }
@@ -1177,9 +1172,91 @@ html.theme-transitioning body {
 }
 
 .marquee-track {
-  display: inline-flex;
+  display: flex;
+  width: max-content;
+  animation: marquee-drift 36s linear infinite;
+}
+
+.marquee-group {
+  display: flex;
   align-items: center;
-  will-change: transform;
+  flex-shrink: 0;
+  min-width: 100vw;
+  justify-content: space-around;
+}
+
+.marquee-track.is-reversed { animation-direction: reverse; }
+
+@keyframes marquee-drift {
+  to { transform: translateX(-50%); }
+}
+
+.stack[data-paused='true'] .marquee-track,
+.stack:focus-within .marquee-track { animation-play-state: paused; }
+
+@media (hover: hover) and (pointer: fine) {
+  .stack:hover .marquee-track { animation-play-state: paused; }
+}
+
+.stack-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding-right: clamp(1.2rem, 5vw, 4.5rem);
+}
+
+.marquee-toggle {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: .5rem .75rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--dim);
+  font: 12px var(--font-d);
+  cursor: pointer;
+}
+
+.marquee-toggle:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
+}
+
+.marquee-toggle[aria-pressed='true'] { color: var(--cyan); }
+
+.agent-tools { margin-top: clamp(2rem, 5vh, 3.5rem); }
+
+.agent-tools-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: .6rem 1.2rem;
+  padding: 0 clamp(1.2rem, 5vw, 4.5rem) 1rem;
+}
+
+.agent-tools-heading h3 {
+  color: var(--cyan);
+  font: 11px var(--font-m);
+  letter-spacing: .2em;
+}
+
+.agent-tools-heading p { color: var(--dim); font-size: .85rem; }
+.marquee-agents .marquee-item { font-size: clamp(1.5rem, 3.6vw, 3rem); }
+.marquee-agents .dot { width: 7px; height: 7px; }
+.marquee-agents .marquee-track { animation-duration: 42s; }
+
+.stack[data-reduced='true'] .marquee-track { animation: none; width: 100%; }
+.stack[data-reduced='true'] .marquee-group { min-width: 0; width: 100%; flex-wrap: wrap; justify-content: flex-start; gap: 1rem 0; }
+.stack[data-reduced='true'] .marquee-group[aria-hidden='true'] { display: none; }
+.stack[data-reduced='true'] .marquee { white-space: normal; padding-inline: clamp(1.2rem, 5vw, 4.5rem); }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; width: 100%; }
+  .marquee-group { min-width: 0; width: 100%; flex-wrap: wrap; justify-content: flex-start; gap: 1rem 0; }
+  .marquee-group[aria-hidden='true'] { display: none; }
+  .marquee { white-space: normal; padding-inline: clamp(1.2rem, 5vw, 4.5rem); }
+  .theme-toggle svg { transform: none !important; filter: none !important; }
+  .c-link::before, .c-link .cl-arrow { transition: none; }
 }
 
 .marquee-item {
@@ -1814,7 +1891,7 @@ html.theme-transitioning body {
   background: var(--cyan);
   transform: scaleY(0);
   transform-origin: bottom;
-  transition: transform .5s var(--ease);
+  transition: transform 200ms var(--ease-out);
   z-index: 0;
 }
 
@@ -1827,7 +1904,7 @@ html.theme-transitioning body {
 .c-link>* {
   position: relative;
   z-index: 1;
-  transition: color .4s;
+  transition: color 200ms ease;
 }
 
 .c-link .cl-name {
@@ -1857,7 +1934,7 @@ html.theme-transitioning body {
   width: 22px;
   height: 22px;
   stroke: var(--ink);
-  transition: transform .5s var(--ease);
+  transition: transform 200ms var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
