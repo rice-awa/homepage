@@ -1191,12 +1191,11 @@ html.theme-transitioning *::after {
   to { transform: translateX(-50%); }
 }
 
-.stack[data-paused='true'] .marquee-track,
-.stack:focus-within .marquee-track { animation-play-state: paused; }
-
-@media (hover: hover) and (pointer: fine) {
-  .stack:hover .marquee-track { animation-play-state: paused; }
-}
+/* Pausing is explicit only: the toggle button, plus the off-screen and
+   hidden-tab gating that feeds data-paused. Section-wide :hover/:focus-within
+   used to freeze every marquee whenever the pointer rested anywhere in the
+   section, and kept them frozen after resuming from the button. */
+.stack[data-paused='true'] .marquee-track { animation-play-state: paused; }
 
 .stack-heading {
   display: flex;
