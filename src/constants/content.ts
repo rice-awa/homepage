@@ -83,18 +83,8 @@ export const WORKS = {
       image: '/assets/lumichat-hero.webp',
     },
     {
-      id: 'ffmpeg-web',
-      num: '03',
-      name: 'FFmpeg Web Tool',
-      year: '2025',
-      tags: ['JAVASCRIPT', 'WEBASSEMBLY', 'FFMPEG'],
-      desc: '把 FFmpeg 编译进浏览器：音视频转码、压缩、裁剪全部本地完成，文件不上传，隐私零风险。',
-      link: 'https://github.com/rice-awa',
-      coverGen: { line1: 'FFMPEG', line2: 'WEB', cg: 'rgba(34,211,238,.30)', cgStrong: '#22d3ee', meta: ['WEBASSEMBLY / IN-BROWSER', 'MEDIA TOOL / 2025'] },
-    },
-    {
       id: 'essay-grader',
-      num: '04',
+      num: '03',
       name: 'AI Essay Grader',
       year: '2024',
       tags: ['PYTHON', 'FLASK', 'LANGCHAIN'],
@@ -104,7 +94,7 @@ export const WORKS = {
     },
     {
       id: 'rice-awa-top',
-      num: '05',
+      num: '04',
       name: 'rice-awa.top',
       year: '2024',
       tags: ['NEXT.JS', 'TYPESCRIPT', 'TAILWIND'],
@@ -114,7 +104,7 @@ export const WORKS = {
     },
     {
       id: 'html-gallery',
-      num: '06',
+      num: '05',
       name: '拾页 / HTML Gallery',
       year: '2026',
       tags: ['HTML', 'CREATIVE CODING', 'INTERACTIVE'],
