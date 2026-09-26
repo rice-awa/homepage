@@ -204,7 +204,7 @@ export default function Works({ reduced }: { reduced: boolean }) {
         </div>
 
         <div className="works-counter">
-          <em id="worksNow">01</em> / <span id="worksTotal">05</span>
+          <em id="worksNow">01</em> / <span id="worksTotal">{String(WORKS.items.length).padStart(2, '0')}</span>
         </div>
         <div className="works-progress">
           <i id="worksProgressFill" />

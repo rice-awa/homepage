@@ -112,6 +112,16 @@ export const WORKS = {
       link: 'https://rice-awa.top',
       coverGen: { line1: 'RICE-AWA', line2: '.TOP', cg: 'rgba(45,212,191,.30)', cgStrong: '#2dd4bf', meta: ['NEXT.JS / TYPESCRIPT', 'PERSONAL SITE / 2024'] },
     },
+    {
+      id: 'html-gallery',
+      num: '06',
+      name: '拾页 / HTML Gallery',
+      year: '2026',
+      tags: ['HTML', 'CREATIVE CODING', 'INTERACTIVE'],
+      desc: '给好奇心一个可以随手翻开的空间：收集 HTML 演示、三维交互实验与小游戏，让灵感变成能阅读、探索和游玩的网页。',
+      link: 'https://demo.rice-awa.top/',
+      coverGen: { line1: 'HTML', line2: 'GALLERY', cg: 'rgba(251,191,36,.30)', cgStrong: '#fbbf24', meta: ['DEMOS / EXPERIMENTS / GAMES', 'CREATIVE COLLECTION / 2026'] },
+    },
   ],
   outro: {
     line1: '还有更多',
