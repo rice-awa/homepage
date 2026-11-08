@@ -4,3 +4,5 @@ dist
 *.local
 .playwright-cli
 .env
+.env.*
+!.env.example

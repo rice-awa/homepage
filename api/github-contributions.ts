@@ -4,10 +4,15 @@ import {
   getContributionRequestYear,
   parseContributionYear,
 } from '../lib/githubContributions.js';
+import {
+  createContributionRateLimiter,
+  getContributionClientKey,
+} from '../lib/contributionRateLimit.js';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const USERNAME = 'rice-awa';
 const CACHE_CONTROL = 'public, s-maxage=3600, stale-while-revalidate=86400';
+const checkContributionRateLimit = createContributionRateLimiter();
 const CONTRIBUTION_LEVELS = new Set([
   'NONE',
   'FIRST_QUARTILE',
@@ -97,6 +102,15 @@ export async function GET(request: Request) {
     year = parseContributionYear(requestedYear, now);
   } catch {
     return error('INVALID_YEAR', 'Year must be between 2008 and the current year.', 400);
+  }
+
+  const client = getContributionClientKey(request.headers, process.env.VERCEL === '1');
+  const rateLimit = checkContributionRateLimit(client);
+  if (!rateLimit.allowed) {
+    return error('RATE_LIMITED', 'Too many requests. Please try again later.', 429, {
+      'Cache-Control': 'no-store',
+      'Retry-After': String(rateLimit.retryAfter),
+    });
   }
 
   const range = getContributionRange(year, now);
